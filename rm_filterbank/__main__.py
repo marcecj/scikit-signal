@@ -3,6 +3,7 @@ import helpers
 import numpy as np
 import rm_filt
 import scipy.signal as sig
+import scipy.fftpack as fftpack
 
 # global parameters
 fs     = 48000 # sampling rate
@@ -69,8 +70,8 @@ rm_fb = rm_filt.RMFilterBank(fe_max, fs, order=order, nbands=nbands, nchn=nchn)
 bs_sig   = rm_fb.analyze(im_sig)
 out_sig  = rm_fb.synthesize(bs_sig)
 
-bs_spec  = sig.fft(bs_sig)[...,:fs/2+1]
-out_spec = sig.fft(out_sig)[0,:fs/2+1]
+bs_spec  = fftpack.fft(bs_sig)[...,:fs/2+1]
+out_spec = fftpack.fft(out_sig)[0,:fs/2+1]
 
 tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs/2)[1],
         sig.freqz(*np.hsplit(h[1], 2), worN=fs/2)[1],)
