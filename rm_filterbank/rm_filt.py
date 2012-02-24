@@ -199,7 +199,7 @@ class RMFilterBank(object):
             out_sig[-2] = out_sig[-2:].sum(axis=0)
             out_sig = out_sig[:-1]
 
-        return out_sig
+        return out_sig[0]
 
     AP = property(fget=lambda self: self.__AP)
     H  = property(fget=lambda self: self.__H)
