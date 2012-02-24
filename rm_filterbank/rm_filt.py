@@ -46,12 +46,18 @@ class LTISys(object):
 
         """
 
+        # workaround a SEGFAULT in scipy.signal.lfilter() when filtering
+        # two-dimensional signals
         in_sig = np.atleast_2d(in_sig)
-        out_sig, self.__states = sig.lfilter(b    = self.__b,
-                                             a    = self.__a,
-                                             x    = in_sig,
-                                             axis = axis,
-                                             zi   = self.__states)
+        out_sig = np.zeros(in_sig.shape)
+        for i in range(self.__nchn):
+            out_sig[i,:], self.__states[i,:] = sig.lfilter(
+                b    = self.__b,
+                a    = self.__a,
+                x    = in_sig[i,:],
+                axis = axis,
+                zi   = self.__states[i,:]
+            )
 
         return out_sig
 

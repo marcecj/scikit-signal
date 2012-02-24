@@ -7,8 +7,7 @@ import scipy.fftpack as fftpack
 
 # global parameters
 fs     = 48000 # sampling rate
-nchn   = 1     # number of channels; using multiple channels works (I've seen it
-               # work for two), but randomly crashes my Python for some reason
+nchn   = 2     # number of channels
 
 im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 
@@ -96,9 +95,9 @@ ax = fig2.add_subplot(313)
 ax.set_title('Demonstration of the double-complementary property')
 ax.plot(np.abs(out_spec.T),
         label="Spectrum of the synthesis output")
-ax.plot(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]), axis=0),
+ax.plot(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]), axis=0)/nchn,
         label="$\sum_i \left|H_i(z)\\right|^2$")
-ax.plot(np.abs(np.vstack(bs_spec).sum(axis=0)),
+ax.plot(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn),
         label="$\left|\sum_i H_i(z)\\right|$")
 
 for ax in fig2.axes:
