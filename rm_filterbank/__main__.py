@@ -8,6 +8,7 @@ import scipy.fftpack as fftpack
 # global parameters
 fs     = 48000 # sampling rate
 nchn   = 2     # number of channels
+my_eps = np.finfo(np.float).eps
 
 im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 
@@ -93,16 +94,16 @@ for i, os in enumerate(bs_spec):
 
 ax = fig2.add_subplot(313)
 ax.set_title('Demonstration of the double-complementary property')
-ax.plot(np.abs(out_spec.T),
+ax.plot(20*np.log10(np.abs(out_spec.T) + my_eps),
         label="Spectrum of the synthesis output")
-ax.plot(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]), axis=0)/nchn,
+ax.plot(20*np.log10(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]), axis=0)/nchn + my_eps),
         label="$\sum_i \left|H_i(z)\\right|^2$")
-ax.plot(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn),
+ax.plot(20*np.log10(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn) + my_eps),
         label="$\left|\sum_i H_i(z)\\right|$")
 
 for ax in fig2.axes:
     ax.legend()
-    ax.set_ylabel('Magnitude')
+    ax.set_ylabel('Magnitude in dB FS')
     ax.set_xlabel('Frequency f in Hz')
     ax.set_xlim((0, fs/2+1))
 
