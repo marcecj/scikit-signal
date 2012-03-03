@@ -181,10 +181,10 @@ class RMFilterBank(object):
         out_sig[0] = in_sig.copy()
 
         for i, s in enumerate(self.__ana_filters):
-            tmp_in = out_sig[i].copy()
+
+            out_sig[i+1] = s[-1].filter(out_sig[i])
             for j, h in enumerate(s[:-1]):
                 out_sig[j] = h.filter(out_sig[j])
-            out_sig[i+1] = s[-1].filter(tmp_in)
 
             # butterfly operation
             out_sig[i:i+2] = np.array((0.5*(out_sig[i+1] - out_sig[i]),
