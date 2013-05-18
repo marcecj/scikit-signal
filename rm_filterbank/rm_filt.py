@@ -80,18 +80,23 @@ class RMFilterBank(object):
                  order,
                  nbands=2,
                  nchn=1,
+                 w_co=[],
                  filter_type='ellip'):
         """The Constructor.
 
         The constructor
         """
 
+        # override nbands if w_co is passed
+        if w_co:
+            nbands = len(w_co)+1
+
         self.__nbands = nbands
 
         self.__AP     = []
         self.__H      = []
         self.__edge_freqs = None
-        self.__gen_filter_bank(max_edge_freq, fs, order, nbands, filter_type)
+        self.__gen_filter_bank(max_edge_freq, fs, order, nbands, filter_type, w_co)
 
         # construct the analysis filter tree
         self.__ana_filters = []
@@ -111,7 +116,7 @@ class RMFilterBank(object):
             for h in self.__AP[nbands-2-i]:
                 self.__syn_filters[i].append(LTISys(*np.hsplit(h, 2), nchn=nchn))
 
-    def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type):
+    def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type, w_co=[]):
         """Function to generate AP filters for constructing a Regalia-Mitra filter bank
         with equidistant edge frequencies.  First, low-pass elliptic filters are
         designed.  Secondly, the AP filters from which the LP and it's
@@ -138,10 +143,13 @@ class RMFilterBank(object):
                   low-pass and high-pass filters described above.
         """
 
-        # split edge frequencies evenly (though arbitrarily limit edge frequencies to
-        # user configurable value)
-        w_co = np.linspace(max_edge_freq/nbands, max_edge_freq, nbands)[:-1]/(fs/2.)
-        # w_co = np.linspace(0.5*fs/nbands, 0.5*fs*(1-1/nbands), nbands-1)/(fs/2.)
+        if not w_co:
+            # split edge frequencies evenly (though arbitrarily limit edge frequencies to
+            # user configurable value)
+            w_co = np.linspace(max_edge_freq/nbands, max_edge_freq, nbands)[:-1]/(fs/2.)
+        else:
+            w_co = np.array(w_co)
+            w_co = w_co/(fs/2.)
 
         self.__edge_freqs = w_co*fs/2
 

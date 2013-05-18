@@ -32,6 +32,11 @@ parser.add_argument("-m", "--max-edge-freq",
                     default = 10e3,
                     type = float,
                     help = "The maximum edge frequency")
+parser.add_argument("-f", "--freqs",
+                    dest = "freqs",
+                    default = [],
+                    type = lambda x: [int(f) for f in x.split(",")],
+                    help = "A list of edge frequencies (overrides --nbands)")
 args = parser.parse_args()
 
 # global parameters
@@ -42,6 +47,7 @@ my_eps = np.finfo(np.float).eps
 # RMFilterBank parameters
 nbands = args.nbands
 order  = args.order
+w_co   = args.freqs
 fe_max = args.fe_max
 
 im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
@@ -97,7 +103,8 @@ ax.legend()
 rm_fb = rm_filt.RMFilterBank(fe_max, fs,
                              order=order,
                              nbands=nbands,
-                             nchn=nchn)
+                             nchn=nchn,
+                             w_co=w_co)
 
 bs_sig   = rm_fb.analyze(im_sig)
 out_sig  = rm_fb.synthesize(bs_sig)
