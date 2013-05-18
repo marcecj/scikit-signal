@@ -2,13 +2,47 @@ from matplotlib import pyplot as plt
 import numpy as np
 import scipy.signal as sig
 import scipy.fftpack as fftpack
+import argparse
 import helpers
 import rm_filt
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--fs",
+                    dest = "fs",
+                    default = 48000,
+                    type = int,
+                    help = "The sampling frequency")
+parser.add_argument("-c", "--nchn",
+                    dest = "nchn",
+                    default = 2,
+                    type = int,
+                    help = "The number of channels")
+parser.add_argument("-b", "--nbands",
+                    dest = "nbands",
+                    default = 4,
+                    type = int,
+                    help = "The number of channels")
+parser.add_argument("-o", "--filter-order",
+                    dest = "order",
+                    default = 7,
+                    type = int,
+                    help = "The number of channels")
+parser.add_argument("-m", "--max-edge-freq",
+                    dest = "fe_max",
+                    default = 10e3,
+                    type = float,
+                    help = "The maximum edge frequency")
+args = parser.parse_args()
+
 # global parameters
-fs     = 48000 # sampling rate
-nchn   = 2     # number of channels
+fs     = args.fs
+nchn   = args.nchn
 my_eps = np.finfo(np.float).eps
+
+# RMFilterBank parameters
+nbands = args.nbands
+order  = args.order
+fe_max = args.fe_max
 
 im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 
@@ -60,12 +94,10 @@ ax.legend()
 # Test RMFilterBank class
 #
 
-# parameters
-nbands = 4      # number of bands
-order  = 7      # filter order
-fe_max = 10e3   # maximum edge frequency
-
-rm_fb = rm_filt.RMFilterBank(fe_max, fs, order=order, nbands=nbands, nchn=nchn)
+rm_fb = rm_filt.RMFilterBank(fe_max, fs,
+                             order=order,
+                             nbands=nbands,
+                             nchn=nchn)
 
 bs_sig   = rm_fb.analyze(im_sig)
 out_sig  = rm_fb.synthesize(bs_sig)
