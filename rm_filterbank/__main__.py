@@ -1,9 +1,9 @@
 from matplotlib import pyplot as plt
-import helpers
 import numpy as np
-import rm_filt
 import scipy.signal as sig
 import scipy.fftpack as fftpack
+import helpers
+import rm_filt
 
 # global parameters
 fs     = 48000 # sampling rate
