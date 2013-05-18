@@ -82,15 +82,17 @@ fig2 = plt.figure()
 ax = fig2.add_subplot(311)
 ax.set_title('Frequency response of the LP and HP filters.')
 for i, t in enumerate(tf2):
-    ax.plot(np.abs(t[1]),
+    ax.plot(20*np.log10(np.abs(t[1])+my_eps),
             label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
-    ax.plot(np.abs(t[0]),
+    ax.plot(20*np.log10(np.abs(t[0])+my_eps),
             label="High-Pass $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+    ax.set_ylim([-100,0])
 
 ax = fig2.add_subplot(312)
 ax.set_title('Frequency response of the bands.')
 for i, os in enumerate(bs_spec):
-    ax.plot(np.abs(os).T, label="Band %i" % (i+1))
+    ax.plot(20*np.log10(np.abs(os)+my_eps).T, label="Band %i" % (i+1))
+    ax.set_ylim([-100,0])
 
 ax = fig2.add_subplot(313)
 ax.set_title('Demonstration of the double-complementary property')
