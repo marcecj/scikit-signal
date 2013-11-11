@@ -1,1 +1,7 @@
 *py[oc]
+
+# Vim swap files
+*.swp
+
+# backup files
+*~
