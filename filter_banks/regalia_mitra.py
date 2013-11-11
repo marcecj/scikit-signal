@@ -1,16 +1,49 @@
 """This module implements a set of functions and a class for generating
 Regalia-Mitra filter banks.
+
+Regalia-Mitra filter banks are a form of tree-structured filter bank that
+consist of all-pass filters.  These all-pass filters are derived from a set of
+low-pass filter designs which must fulfill certain properties [1]_.  They have
+the special property of being doubly-complementary, i.e., simultaneously
+all-pass- and power-complementary.  For an N-band filter bank, this means that
+the following two equations hold for its output filters:
+
+    |sum[k=0..N] H_k(z)|   =   1
+
+    sum[k=0..N] |H_k(z)|^2 =   1.
+
+Regalia-Mitra filter banks consist of two stages: an analysis and a synthesis
+filter bank.  However, due to the all-pass complementary property, it is
+possible to simply sum up the output of the analysis stage.  The output will
+merely be all-pass filtered.  However, by using the synthesis filter bank, the
+overall transfer function of the system remains invariant to parameter changes
+(according to [0]_).
+
+This implementation uses the collapsed-tree form (see figures 9 and 10a in
+[0]_).
+
+References
+----------
+
+.. [0] P. A. Regalia, P. P. Vaidyanathan, M. Renfors, Y. Neuvo, and S. K.
+Mitra, 'Tree-structured complementary filter banks using all-pass sections',
+IEEE Trans. Circuits and Systems, vol. 34, no. 12, pp. 1470-1484, December 1987.
+(downloadable at http://faculty.cua.edu/regalia/)
+
+.. [1] Vaidyanathan, P.P.; Mitra, S.K.; Neuvo, Y., 'A new approach to the
+realization of low-sensitivity IIR digital filters', Acoustics, Speech and
+Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361, Apr 1986
 """
 
 import numpy as np
 import scipy.signal as sig
 
 def get_power_complementary_q(P,D):
-    """Function to get the non-recursive coefficients Q of a doubly-complementary
-    filter Q/D to a filter P/D with P it's non-recursive coefficients and D it's
-    recursive coefficients.  The term "doubly-complementary" means a group of
-    filters whose absolute sum as well as whose sum of absolute powers yields
-    unity, i.e.:
+    """Calculates the non-recursive coefficients Q of a doubly-complementary
+    filter Q/D to a filter P/D, with P it's non-recursive coefficients and D
+    it's recursive coefficients.  The term "doubly-complementary" means a group
+    of filters that is simultaneously all-pass-complementary and
+    power-complementary, i.e.:
 
             |P(z)/D(z)      +   Q(z)/D(z)|      =   1
       and
@@ -19,13 +52,16 @@ def get_power_complementary_q(P,D):
     Parameters:
     -----------
 
-    P, D: The non-recursive and recursive coefficients of the filter,
-          respectively.
+    P : numpy.ndarray
+        The non-recursive filter coefficients.
+    D : numpy.ndarray
+        The recursive filter coefficients.
 
     Returns:
     --------
 
-    Q: The non-recursive coefficients of the doubly-complementary filter.
+    Q : numpy.ndarray
+        The non-recursive coefficients of the doubly-complementary filter.
     """
 
     # make sure we get column vectors
@@ -70,10 +106,10 @@ def get_power_complementary_q(P,D):
     return Q
 
 def get_power_complementary_filters(A1, A2):
-    """Function to get a pair of doubly-complementary filters from a pair of
-    complementary all-pass filters.  The term "doubly-complementary" means a group
-    of filters whose abolute sum as well as whose sum of absolute powers yields
-    unity, i.e.:
+    """Convert a pair of complementary all-pass filters to a
+    doubly-complementary low-pass/high-pass pair.  The term
+    "doubly-complementary" means a group of filters that is simultaneously
+    all-pass-complementary and power-complementary, i.e.:
 
             |H1(z)      +   H2(z)|      =   1
       and
@@ -84,15 +120,17 @@ def get_power_complementary_filters(A1, A2):
     Parameters:
     -----------
 
-    A1, A2: A pair of complementary all-pass filter coefficients (the b and a
-            coefficients must be in the first and second column, respectively).
+    A1, A2 : numpy.ndarray
+        A pair of complementary all-pass filter coefficients (the b and a
+        coefficients must be in the first and second column, respectively).
 
     Returns:
     --------
 
-    H1, H2: Matrices containing the coefficients of doubly-complementary
-            high-pass and low-pass filters.  The b and a coefficients are in the
-            first and second column, respectively.
+    H1, H2 : numpy.ndarray
+        Arrays containing the coefficients of doubly-complementary high-pass and
+        low-pass filters.  The b and a coefficients are in the first and second
+        column, respectively.
     """
 
     # extract b and a coefficients
@@ -124,21 +162,25 @@ def get_power_complementary_filters(A1, A2):
     return (H1, H2)
 
 def any_to_ap_pair(b,a):
-    """Function to convert a filter to a pair of doubly-complementary all-pass
-    filters.
+    """Converts any filter that satisfies the constraints in [1]_ to a pair of
+    doubly-complementary all-pass filters.
 
     Parameters:
     -----------
 
-      b, a:   Coefficients of the filter design.
+    b : numpy.ndarray
+        The non-recursive filter coefficients.
+    a : numpy.ndarray
+        The recursive filter coefficients.
 
     Returns:
     --------
 
-      A1, A2: Matrices containing the coefficients of complementary all-pass
-              filters whose sum yields a low-pass and whose difference yields
-              the doubly-complementary high-pass filter.  The b and a
-              coefficients are in the first and second column, respectively.
+    A1, A2 : numpy.ndarray
+        Arrays containing the coefficients of complementary all-pass filters
+        whose sum yields a low-pass and whose difference yields the
+        doubly-complementary high-pass filter.  The b and a coefficients are in
+        the first and second column, respectively.
     """
 
     # make sure we get 1d vectors
@@ -172,18 +214,23 @@ def any_to_ap_pair(b,a):
 class LTISys(object):
     """An LTI filter class.
 
-    This is simply a class that implements an LTI system by wrapping
-    scipy.signal.lfilter().
+    This is a simple class that implements an LTI system by wrapping
+    scipy.signal.lfilter.  Its primary purpose is to take care of the filter
+    state.
     """
 
     def __init__(self, b, a, nchn=1):
-        """The constructor.
+        """Initialise an LTISys object.
 
-        Inputs:
-        -------
+        Parameters:
+        -----------
 
-        b, a:   Coefficients of the filter design.
-        nchn:   The number of input channels to be supported.
+        b : numpy.ndarray
+            The non-recursive filter coefficients.
+        a : numpy.ndarray
+            The recursive filter coefficients.
+        nchn : int (optional)
+            The number of input channels to be supported (default: 1).
         """
 
         a = a.flatten()
@@ -200,16 +247,16 @@ class LTISys(object):
         self.__states = np.zeros((self.__nchn,self.__order))
 
     def filter(self, in_sig, axis=-1):
-        """Filter a signal.
+        """Filter an N-dimensional signal.  See scipy.signal.lfilter for more
+        details.
 
-        This method filters an N-dimensional signal.  See scipy.signal.lfilter
-        for more details.
+        Parameters:
+        -----------
 
-        Inputs:
-        -------
-
-        in_sig: The input signal; it must have self.n_chn channels.
-        axis:   The axis along which the filter operates (default: -1).
+        in_sig : numpy.ndarray
+            The input signal; it must have self.n_chn channels.
+        axis : int (optional)
+            The axis along which the filter operates (default: -1).
 
         """
 
@@ -235,10 +282,9 @@ class LTISys(object):
 class RMFilterBank(object):
     """A Class that implements a Regalia-Mitra filter bank.
 
-    This class provides two methods: analyze() and synthesize(), that implement
-    the band splitting and its inverse, respectively.  This allows one to split
-    a signal into N bands, process these bands separately, and then recombine
-    them.
+    This class provides two methods: analyze() implements the band splitting,
+    and synthesize() its inverse.  This allows one to split a signal into N
+    bands, process these bands separately, and then recombine them.
     """
 
     def __init__(self,
@@ -249,9 +295,30 @@ class RMFilterBank(object):
                  nchn=1,
                  w_co=[],
                  filter_type='ellip'):
-        """The Constructor.
+        """Initialise an RMFilterBank object.
 
-        The constructor
+        Inputs:
+        -------
+
+        max_edge_freq : float
+            The highest edge frequency of the filter bank (in Hz), that is, the edge
+            frequency of the final high-pass.
+        fs : float
+            The sampling rate in Hz.
+        order : int
+            The order of the low-pass filters used to create the all-pass
+            filters.
+        nbands : int (optional)
+            The number of frequency bands of the filter bank (default: 2).
+        nchn : int (optional)
+            The number of channels the filter bank should support.
+        w_co : list-like (optional)
+            An optional list of edge frequencies (in Hz).  This overrides nbands
+            if given.
+        filter_type : string (optional)
+            The type of design used for the low-pass filters.  Valid values are:
+            'ellip' (Elliptical design; the default), and 'butter' (Butterworth
+            design).
         """
 
         # override nbands if w_co is passed
@@ -284,30 +351,46 @@ class RMFilterBank(object):
                 self.__syn_filters[i].append(LTISys(*np.hsplit(h, 2), nchn=nchn))
 
     def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type, w_co=[]):
-        """Function to generate AP filters for constructing a Regalia-Mitra filter bank
-        with equidistant edge frequencies.  First, low-pass elliptic filters are
-        designed.  Secondly, the AP filters from which the LP and it's
-        doubly-complementary HP filter can be derived via butterfly operation are
-        calculated.  Thirdly, the doubly-complementary high-pass filter is calculated.
+        """Function to generate AP filters for constructing a Regalia-Mitra
+        filter bank with equidistant edge frequencies.  First, low-pass elliptic
+        filters are designed.  Secondly, the AP filters from which the LP and
+        it's doubly-complementary HP filter can be derived via butterfly
+        operation are calculated.  Thirdly, the doubly-complementary high-pass
+        filter is calculated.
 
-        Usage:
-          [AP, H] = gen_filter_bank(nbands, max_edge_freq, order, fs)
+        Parameters:
+        -----------
 
-        Input arguments (all required):
-          nbands:         Number of bands of the filter bank.
-          max_edge_freq:  The highest edge frequency (in Hz).  All edge frequencies
-                          are lower or equal to this frequency.
-          order:          The order the low-pass filters used to create the all-pass
-                          filters are supposed to have.
-          fs:             The sampling frequency (in Hz).
+        max_edge_freq : float
+            The highest edge frequency of the filter bank (in Hz), that is,
+            the edge frequency of the final high-pass.
+        fs : float
+            The sampling frequency (in Hz).
+        order : int
+            The order of the low-pass filters used to create the all-pass
+            filters.
+        nbands : int
+            The number of frequency bands of the filter bank.
+        filter_type : string (optional)
+            The type of design used for the low-pass filters.  Valid values are:
+            'ellip' (Elliptical design; the default), and 'butter' (Butterworth
+            design).
+        w_co : list-like (optional)
+            An optional list of edge frequencies (in Hz).  This overrides nbands
+            if given.
 
-        Output arguments:
-          AP:     Cell array containing the coefficients of complementary all-pass
-                  filters whose sum yields a low-pass and whose difference yields the
-                  doubly-complementary high-pass filter.  The b and a coefficients are
-                  in the first and second column, respectively.
-          H:      Cell array containing the coefficients of the doubly complementary
-                  low-pass and high-pass filters described above.
+
+        Returns:
+        --------
+
+          AP : numpy.ndarray
+              The coefficients of the complementary all-pass filters whose sum
+              yields a low-pass and whose difference yields the
+              doubly-complementary high-pass filter.  The b and a coefficients
+              are in the first and second column, respectively.
+          H : numpy.ndarray
+              The coefficients of the doubly complementary low-pass and
+              high-pass filters described above.
         """
 
         if not w_co:
@@ -347,6 +430,21 @@ class RMFilterBank(object):
             self.__H.append((H1, H2))
 
     def analyze(self, in_sig):
+        """Split an input signal into multiple frequency bands using an analysis
+        filter bank.
+
+        Inputs:
+        -------
+
+        in_sig : numpy.ndarray
+            The input signal.
+
+        Returns:
+        --------
+
+        bs_sig : numpy.ndarray
+            The band-split signal.
+        """
 
         in_sig = np.atleast_2d(in_sig)
 
@@ -368,6 +466,24 @@ class RMFilterBank(object):
         return out_sig
 
     def synthesize(self, bs_sig):
+        """Reconstruct a signal from it's band-split representation using a
+        synthesis filter bank.
+
+        Note that due to the all-pass complementary property of the filter bank,
+        it is possible to simply sum up the bands.
+
+        Inputs:
+        -------
+
+        bs_sig : numpy.ndarray
+            A band-split signal (filtered output of .analyse()).
+
+        Returns:
+        --------
+
+        out_sig : numpy.ndarray
+            The synthesised output signal.
+        """
 
         out_sig = bs_sig.copy()
 
