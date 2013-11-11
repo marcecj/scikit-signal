@@ -243,8 +243,8 @@ class LTISys(object):
 
         self.__nchn = nchn
 
-        self.__order = max(Mb, Ma)-1
-        self.__states = np.zeros((self.__nchn,self.__order))
+        order = max(Mb, Ma)-1
+        self.__states = np.zeros((self.__nchn,order))
 
     def filter(self, in_sig, axis=-1):
         """Filter an N-dimensional signal.  See scipy.signal.lfilter for more
