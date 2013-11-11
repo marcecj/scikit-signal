@@ -6,9 +6,9 @@ import numpy as np
 import scipy.signal as sig
 
 def get_power_complementary_q(P,D):
-    """Function to get the non-recursive coefficients Q of a double-complementary
+    """Function to get the non-recursive coefficients Q of a doubly-complementary
     filter Q/D to a filter P/D with P it's non-recursive coefficients and D it's
-    recursive coefficients.  The term "double-complementary" means a group of
+    recursive coefficients.  The term "doubly-complementary" means a group of
     filters whose absolute sum as well as whose sum of absolute powers yields
     unity, i.e.:
 
@@ -25,14 +25,14 @@ def get_power_complementary_q(P,D):
     Returns:
     --------
 
-    Q: The non-recursive coefficients of the double-complementary filter.
+    Q: The non-recursive coefficients of the doubly-complementary filter.
     """
 
     # make sure we get column vectors
     P = np.atleast_2d(P.flatten()).T
     D = np.atleast_2d(D.flatten()).T
 
-    # get double complementary filter
+    # get doubly complementary filter
     # R(z) = P(z)^2 - z^(-n)*D(z^-1)*D(z)
     P_sq = P.dot(P.T)
     D_sq = D[::-1].dot(D.T)
@@ -70,8 +70,8 @@ def get_power_complementary_q(P,D):
     return Q
 
 def get_power_complementary_filters(A1, A2):
-    """Function to get a pair of double-complementary filters from a pair of
-    complementary all-pass filters.  The term "double-complementary" means a group
+    """Function to get a pair of doubly-complementary filters from a pair of
+    complementary all-pass filters.  The term "doubly-complementary" means a group
     of filters whose abolute sum as well as whose sum of absolute powers yields
     unity, i.e.:
 
@@ -90,7 +90,7 @@ def get_power_complementary_filters(A1, A2):
     Returns:
     --------
 
-    H1, H2: Matrices containing the coefficients of double-complementary
+    H1, H2: Matrices containing the coefficients of doubly-complementary
             high-pass and low-pass filters.  The b and a coefficients are in the
             first and second column, respectively.
     """
@@ -99,7 +99,7 @@ def get_power_complementary_filters(A1, A2):
     A1b, A1a = [a.T for a in np.hsplit(A1, 2)]
     A2b, A2a = [a.T for a in np.hsplit(A2, 2)]
 
-    # calculate and sort coefficients of the double-complementary filters
+    # calculate and sort coefficients of the doubly-complementary filters
 
     H1b = 0.5*(A1b.T.dot(A2a) + A1a.T.dot(A2b))
     H1a = A1a.T*A2a
@@ -124,7 +124,7 @@ def get_power_complementary_filters(A1, A2):
     return (H1, H2)
 
 def any_to_ap_pair(b,a):
-    """Function to convert a filter to a pair of double-complementary all-pass
+    """Function to convert a filter to a pair of doubly-complementary all-pass
     filters.
 
     Parameters:
@@ -137,7 +137,7 @@ def any_to_ap_pair(b,a):
 
       A1, A2: Matrices containing the coefficients of complementary all-pass
               filters whose sum yields a low-pass and whose difference yields
-              the double-complementary high-pass filter.  The b and a
+              the doubly-complementary high-pass filter.  The b and a
               coefficients are in the first and second column, respectively.
     """
 
@@ -148,7 +148,7 @@ def any_to_ap_pair(b,a):
     P = b/a[0] # numerator polynomial
     D = a/a[0] # denominator polynomial
 
-    # get P's double-complementary polynomial Q
+    # get P's doubly-complementary polynomial Q
     Q = get_power_complementary_q(P,D)
 
     z1 = np.roots(P+Q)
@@ -287,8 +287,8 @@ class RMFilterBank(object):
         """Function to generate AP filters for constructing a Regalia-Mitra filter bank
         with equidistant edge frequencies.  First, low-pass elliptic filters are
         designed.  Secondly, the AP filters from which the LP and it's
-        double-complementary HP filter can be derived via butterfly operation are
-        calculated.  Thirdly, the double-complementary high-pass filter is calculated.
+        doubly-complementary HP filter can be derived via butterfly operation are
+        calculated.  Thirdly, the doubly-complementary high-pass filter is calculated.
 
         Usage:
           [AP, H] = gen_filter_bank(nbands, max_edge_freq, order, fs)
@@ -304,9 +304,9 @@ class RMFilterBank(object):
         Output arguments:
           AP:     Cell array containing the coefficients of complementary all-pass
                   filters whose sum yields a low-pass and whose difference yields the
-                  double-complementary high-pass filter.  The b and a coefficients are
+                  doubly-complementary high-pass filter.  The b and a coefficients are
                   in the first and second column, respectively.
-          H:      Cell array containing the coefficients of the double complementary
+          H:      Cell array containing the coefficients of the doubly complementary
                   low-pass and high-pass filters described above.
         """
 
