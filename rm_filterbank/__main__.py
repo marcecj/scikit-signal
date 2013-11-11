@@ -3,7 +3,6 @@ import numpy as np
 import scipy.signal as sig
 import scipy.fftpack as fftpack
 import argparse
-import helpers
 import rm_filt
 
 parser = argparse.ArgumentParser()
@@ -74,8 +73,8 @@ print ltisys.filter(im_sig)
 # Test helper functions
 #
 
-A1, A2 = helpers.any_to_ap_pair(b,a)
-H1, H2 = helpers.get_power_complementary_filters(A1, A2)
+A1, A2 = rm_filt.any_to_ap_pair(b,a)
+H1, H2 = rm_filt.get_power_complementary_filters(A1, A2)
 
 tf1 = [sig.freqz(*np.hsplit(h, 2))[1] for h in (H1, H2)]
 
