@@ -8,7 +8,7 @@ This package contains the following sub-packages:
 
 ::
 
-    rm_filt -- Regalia-Mitra doubly-complementary filter bank
+    regalia_mitra -- Regalia-Mitra doubly-complementary filter bank
 """
 
-import rm_filt
+import regalia_mitra

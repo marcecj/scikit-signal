@@ -3,7 +3,7 @@ import numpy as np
 import scipy.signal as sig
 import scipy.fftpack as fftpack
 import argparse
-import rm_filt
+import regalia_mitra
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--fs",
@@ -61,7 +61,7 @@ f_edge = 3e3    # edge frequency
 
 b, a = sig.butter(order, f_edge*2/fs)
 
-ltisys = rm_filt.LTISys(b, a)
+ltisys = regalia_mitra.LTISys(b, a)
 
 print "Filter coeffs:"
 print "b =", b
@@ -73,8 +73,8 @@ print ltisys.filter(im_sig)
 # Test helper functions
 #
 
-A1, A2 = rm_filt.any_to_ap_pair(b,a)
-H1, H2 = rm_filt.get_power_complementary_filters(A1, A2)
+A1, A2 = regalia_mitra.any_to_ap_pair(b,a)
+H1, H2 = regalia_mitra.get_power_complementary_filters(A1, A2)
 
 tf1 = [sig.freqz(*np.hsplit(h, 2))[1] for h in (H1, H2)]
 
@@ -99,7 +99,7 @@ ax.legend()
 # Test RMFilterBank class
 #
 
-rm_fb = rm_filt.RMFilterBank(fe_max, fs,
+rm_fb = regalia_mitra.RMFilterBank(fe_max, fs,
                              order=order,
                              nbands=nbands,
                              nchn=nchn,
