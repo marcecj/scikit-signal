@@ -63,11 +63,11 @@ b, a = sig.butter(order, f_edge*2/fs)
 
 ltisys = regalia_mitra.LTISys(b, a)
 
-print "Filter coeffs:"
-print "b =", b
-print "a =", a
+print("Filter coeffs:")
+print("b =", b)
+print("a =", a)
 
-print ltisys.filter(im_sig)
+print(ltisys.filter(im_sig))
 
 #
 # Test helper functions
@@ -78,15 +78,15 @@ H1, H2 = regalia_mitra.get_power_complementary_filters(A1, A2)
 
 tf1 = [sig.freqz(*np.hsplit(h, 2))[1] for h in (H1, H2)]
 
-print "All-Pass filter coeffs:"
-print "A_1 =\n", A1
-print "A_2 =\n", A2
+print("All-Pass filter coeffs:")
+print("A_1 =\n", A1)
+print("A_2 =\n", A2)
 
-print "Recalculated filter coeffs:"
-print "b_1 =\n", H1[:,0]
-print "a_1 =\n", H1[:,1]
-print "b_2 =\n", H2[:,0]
-print "a_2 =\n", H2[:,1]
+print("Recalculated filter coeffs:")
+print("b_1 =\n", H1[:, 0])
+print("a_1 =\n", H1[:, 1])
+print("b_2 =\n", H2[:, 0])
+print("a_2 =\n", H2[:, 1])
 
 fig1 = plt.figure()
 ax = fig1.add_subplot(111)
@@ -111,8 +111,8 @@ out_sig = rm_fb.synthesize(bs_sig)
 bs_spec = fftpack.fft(bs_sig)[..., :fs/2+1]
 out_spec = fftpack.fft(out_sig)[0, :fs/2+1]
 
-tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs/2)[1],
-        sig.freqz(*np.hsplit(h[1], 2), worN=fs/2)[1],)
+tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs//2)[1],
+        sig.freqz(*np.hsplit(h[1], 2), worN=fs//2)[1],)
        for h in rm_fb.H]
 
 fig2 = plt.figure()

@@ -99,7 +99,7 @@ def get_power_complementary_q(P, D):
     Q[0] = np.sqrt(R[0])
     Q[1] = R[1]/(2*Q[0])
     # Q is antisymmetric, so calculate N/2 and generate the rest from that
-    for kk in range(2, N/2):
+    for kk in range(2, N//2):
         Q[kk] = (R[kk] - (Q[1:kk].T.dot(Q[kk-1:0:-1])))/(2*Q[0])
 
     Q[N/2:] = -Q[N/2-1::-1]
@@ -343,9 +343,9 @@ class RMFilterBank(object):
 
         # construct the analysis filter tree
         self.__ana_filters = []
-        for i in xrange(nbands-1):
+        for i in range(nbands-1):
             self.__ana_filters.append([])
-            for j in xrange(i):
+            for j in range(i):
                 self.__ana_filters[i].append(
                     LTISys(*np.hsplit(self.__AP[i][0], 2), nchn=nchn)
                 )
@@ -356,9 +356,9 @@ class RMFilterBank(object):
 
         # construct the synthesis filter tree
         self.__syn_filters = []
-        for i in xrange(nbands-1):
+        for i in range(nbands-1):
             self.__syn_filters.append([])
-            for j in xrange(nbands-2-i):
+            for j in range(nbands-2-i):
                 self.__syn_filters[i].append(
                     LTISys(*np.hsplit(self.__AP[nbands-2-i][1], 2), nchn=nchn)
                 )
