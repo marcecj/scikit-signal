@@ -90,9 +90,8 @@ print("a_1 =\n", H1[:, 1])
 print("b_2 =\n", H2[:, 0])
 print("a_2 =\n", H2[:, 1])
 
-fig1 = plt.figure()
-ax = fig1.add_subplot(111)
-
+fig1, ax = plt.subplots(tight_layout=True)
+ax.autoscale(tight=True)
 ax.plot(np.abs(tf1[0]), label='H1')
 ax.plot(np.abs(tf1[1]), label='H2')
 ax.legend()
@@ -117,37 +116,34 @@ tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs//2)[1],
         sig.freqz(*np.hsplit(h[1], 2), worN=fs//2)[1],)
        for h in rm_fb.H]
 
-fig2 = plt.figure()
+fig2, ax = plt.subplots(3, 1, sharex=True, tight_layout={'pad': 0.15})
 
-ax = fig2.add_subplot(311)
-ax.set_title('Frequency response of the LP and HP filters.')
+ax[0].set_title('Frequency response of the LP and HP filters.')
 for i, t in enumerate(tf2):
-    ax.plot(20*np.log10(np.abs(t[0])+my_eps),
-            label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
-    ax.plot(20*np.log10(np.abs(t[1])+my_eps),
-            label="High-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
-    ax.set_ylim([-100, 0])
+    ax[0].plot(20*np.log10(np.abs(t[0])+my_eps),
+               label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+    ax[0].plot(20*np.log10(np.abs(t[1])+my_eps),
+               label="High-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+    ax[0].set_ylim([-100, 0])
 
-ax = fig2.add_subplot(312)
-ax.set_title('Frequency response of the bands.')
+ax[1].set_title('Frequency response of the bands.')
 for i, os in enumerate(bs_spec):
-    ax.plot(20*np.log10(np.abs(os)+my_eps).T, label="Band %i" % (i+1))
-    ax.set_ylim([-100, 0])
+    ax[1].plot(20*np.log10(np.abs(os)+my_eps).T, label="Band %i" % (i+1))
+    ax[1].set_ylim([-100, 0])
 
-ax = fig2.add_subplot(313)
-ax.set_title('Demonstration of the double-complementary property')
-ax.plot(20*np.log10(np.abs(out_spec.T) + my_eps),
-        label="Spectrum of the synthesis output")
-ax.plot(20*np.log10(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]),
-                           axis=0)/nchn + my_eps),
-        label="$\sum_i \left|H_i(z)\\right|^2$")
-ax.plot(20*np.log10(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn) + my_eps),
-        label="$\left|\sum_i H_i(z)\\right|$")
+ax[2].set_title('Demonstration of the double-complementary property')
+ax[2].plot(20*np.log10(np.abs(out_spec.T) + my_eps),
+           label="Spectrum of the synthesis output")
+ax[2].plot(20*np.log10(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]),
+                              axis=0)/nchn + my_eps),
+           label="$\sum_i \left|H_i(z)\\right|^2$")
+ax[2].plot(20*np.log10(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn) + my_eps),
+           label="$\left|\sum_i H_i(z)\\right|$")
 
+ax[-1].set_xlabel('Frequency f in Hz')
 for ax in fig2.axes:
     ax.legend()
     ax.set_ylabel('Magnitude in dB FS')
-    ax.set_xlabel('Frequency f in Hz')
     ax.set_xlim((0, fs/2+1))
 
 plt.show()
