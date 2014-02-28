@@ -5,7 +5,7 @@ import numpy as np
 import scipy.signal as sig
 import scipy.fftpack as fftpack
 
-import regalia_mitra
+from . import regalia_mitra
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--fs",

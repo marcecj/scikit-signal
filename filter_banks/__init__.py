@@ -11,4 +11,4 @@ This package contains the following sub-packages:
     regalia_mitra -- Regalia-Mitra doubly-complementary filter bank
 """
 
-import regalia_mitra
+from . import regalia_mitra
