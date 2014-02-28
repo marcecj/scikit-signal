@@ -7,46 +7,46 @@ import regalia_mitra
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--fs",
-                    dest = "fs",
-                    default = 48000,
-                    type = int,
-                    help = "The sampling frequency")
+                    dest="fs",
+                    default=48000,
+                    type=int,
+                    help="The sampling frequency")
 parser.add_argument("-c", "--nchn",
-                    dest = "nchn",
-                    default = 2,
-                    type = int,
-                    help = "The number of channels")
+                    dest="nchn",
+                    default=2,
+                    type=int,
+                    help="The number of channels")
 parser.add_argument("-b", "--nbands",
-                    dest = "nbands",
-                    default = 4,
-                    type = int,
-                    help = "The number of channels")
+                    dest="nbands",
+                    default=4,
+                    type=int,
+                    help="The number of channels")
 parser.add_argument("-o", "--filter-order",
-                    dest = "order",
-                    default = 7,
-                    type = int,
-                    help = "The number of channels")
+                    dest="order",
+                    default=7,
+                    type=int,
+                    help="The number of channels")
 parser.add_argument("-m", "--max-edge-freq",
-                    dest = "fe_max",
-                    default = 10e3,
-                    type = float,
-                    help = "The maximum edge frequency")
+                    dest="fe_max",
+                    default=10e3,
+                    type=float,
+                    help="The maximum edge frequency")
 parser.add_argument("-f", "--freqs",
-                    dest = "freqs",
-                    default = [],
-                    type = lambda x: [int(f) for f in x.split(",")],
-                    help = "A list of edge frequencies (overrides --nbands)")
+                    dest="freqs",
+                    default=[],
+                    type=lambda x: [int(f) for f in x.split(",")],
+                    help="A list of edge frequencies (overrides --nbands)")
 args = parser.parse_args()
 
 # global parameters
-fs     = args.fs
-nchn   = args.nchn
+fs = args.fs
+nchn = args.nchn
 my_eps = np.finfo(np.float).eps
 
 # RMFilterBank parameters
 nbands = args.nbands
-order  = args.order
-w_co   = args.freqs
+order = args.order
+w_co = args.freqs
 fe_max = args.fe_max
 
 im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
@@ -56,7 +56,7 @@ im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 #
 
 # parameters
-order  = 5      # filter order
+order = 5       # filter order
 f_edge = 3e3    # edge frequency
 
 b, a = sig.butter(order, f_edge*2/fs)
@@ -73,7 +73,7 @@ print ltisys.filter(im_sig)
 # Test helper functions
 #
 
-A1, A2 = regalia_mitra.any_to_ap_pair(b,a)
+A1, A2 = regalia_mitra.any_to_ap_pair(b, a)
 H1, H2 = regalia_mitra.get_power_complementary_filters(A1, A2)
 
 tf1 = [sig.freqz(*np.hsplit(h, 2))[1] for h in (H1, H2)]
@@ -100,20 +100,20 @@ ax.legend()
 #
 
 rm_fb = regalia_mitra.RMFilterBank(fe_max, fs,
-                             order=order,
-                             nbands=nbands,
-                             nchn=nchn,
-                             w_co=w_co)
+                                   order=order,
+                                   nbands=nbands,
+                                   nchn=nchn,
+                                   w_co=w_co)
 
-bs_sig   = rm_fb.analyze(im_sig)
-out_sig  = rm_fb.synthesize(bs_sig)
+bs_sig = rm_fb.analyze(im_sig)
+out_sig = rm_fb.synthesize(bs_sig)
 
-bs_spec  = fftpack.fft(bs_sig)[...,:fs/2+1]
-out_spec = fftpack.fft(out_sig)[0,:fs/2+1]
+bs_spec = fftpack.fft(bs_sig)[..., :fs/2+1]
+out_spec = fftpack.fft(out_sig)[0, :fs/2+1]
 
 tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs/2)[1],
         sig.freqz(*np.hsplit(h[1], 2), worN=fs/2)[1],)
-        for h in rm_fb.H]
+       for h in rm_fb.H]
 
 fig2 = plt.figure()
 
@@ -124,19 +124,20 @@ for i, t in enumerate(tf2):
             label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
     ax.plot(20*np.log10(np.abs(t[0])+my_eps),
             label="High-Pass $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
-    ax.set_ylim([-100,0])
+    ax.set_ylim([-100, 0])
 
 ax = fig2.add_subplot(312)
 ax.set_title('Frequency response of the bands.')
 for i, os in enumerate(bs_spec):
     ax.plot(20*np.log10(np.abs(os)+my_eps).T, label="Band %i" % (i+1))
-    ax.set_ylim([-100,0])
+    ax.set_ylim([-100, 0])
 
 ax = fig2.add_subplot(313)
 ax.set_title('Demonstration of the double-complementary property')
 ax.plot(20*np.log10(np.abs(out_spec.T) + my_eps),
         label="Spectrum of the synthesis output")
-ax.plot(20*np.log10(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]), axis=0)/nchn + my_eps),
+ax.plot(20*np.log10(np.sum(np.vstack([np.abs(o)**2 for o in bs_spec]),
+                           axis=0)/nchn + my_eps),
         label="$\sum_i \left|H_i(z)\\right|^2$")
 ax.plot(20*np.log10(np.abs(np.vstack(bs_spec).sum(axis=0)/nchn) + my_eps),
         label="$\left|\sum_i H_i(z)\\right|$")

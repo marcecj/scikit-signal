@@ -27,8 +27,8 @@ References
 
 .. [0] P. A. Regalia, P. P. Vaidyanathan, M. Renfors, Y. Neuvo, and S. K.
 Mitra, 'Tree-structured complementary filter banks using all-pass sections',
-IEEE Trans. Circuits and Systems, vol. 34, no. 12, pp. 1470-1484, December 1987.
-(downloadable at http://faculty.cua.edu/regalia/)
+IEEE Trans. Circuits and Systems, vol. 34, no. 12, pp. 1470-1484, December
+1987.  (downloadable at http://faculty.cua.edu/regalia/)
 
 .. [1] Vaidyanathan, P.P.; Mitra, S.K.; Neuvo, Y., 'A new approach to the
 realization of low-sensitivity IIR digital filters', Acoustics, Speech and
@@ -38,7 +38,8 @@ Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361, Apr 1986
 import numpy as np
 import scipy.signal as sig
 
-def get_power_complementary_q(P,D):
+
+def get_power_complementary_q(P, D):
     """Calculates the non-recursive coefficients Q of a doubly-complementary
     filter Q/D to a filter P/D, with P it's non-recursive coefficients and D
     it's recursive coefficients.  The term "doubly-complementary" means a group
@@ -73,8 +74,8 @@ def get_power_complementary_q(P,D):
     P_sq = P.dot(P.T)
     D_sq = D[::-1].dot(D.T)
 
-    # sort P and D by power of z, since the distribution of the powers of z of the
-    # squared polynomial in matrix form is:
+    # sort P and D by power of z, since the distribution of the powers of z of
+    # the squared polynomial in matrix form is:
     #
     # P(z)'*P(z) = 1      z      ...    z^n
     #              z      z^2    ...    z^n+1
@@ -88,22 +89,23 @@ def get_power_complementary_q(P,D):
     D_sq_sort = np.zeros((N*2-1,))
     for mm in range(N):
         for nn in range(N):
-            P_sq_sort[mm+nn] += P_sq[mm,nn]
-            D_sq_sort[mm+nn] += D_sq[mm,nn]
+            P_sq_sort[mm+nn] += P_sq[mm, nn]
+            D_sq_sort[mm+nn] += D_sq[mm, nn]
 
     Q = np.zeros((P.size,))
 
     # recursively calculate Q from R
-    R    = P_sq_sort - D_sq_sort
+    R = P_sq_sort - D_sq_sort
     Q[0] = np.sqrt(R[0])
     Q[1] = R[1]/(2*Q[0])
     # Q is antisymmetric, so calculate N/2 and generate the rest from that
-    for kk in range(2,N/2):
+    for kk in range(2, N/2):
         Q[kk] = (R[kk] - (Q[1:kk].T.dot(Q[kk-1:0:-1])))/(2*Q[0])
 
     Q[N/2:] = -Q[N/2-1::-1]
 
     return Q
+
 
 def get_power_complementary_filters(A1, A2):
     """Convert a pair of complementary all-pass filters to a
@@ -128,9 +130,9 @@ def get_power_complementary_filters(A1, A2):
     --------
 
     H1, H2 : numpy.ndarray
-        Arrays containing the coefficients of doubly-complementary high-pass and
-        low-pass filters.  The b and a coefficients are in the first and second
-        column, respectively.
+        Arrays containing the coefficients of doubly-complementary high-pass
+        and low-pass filters.  The b and a coefficients are in the first and
+        second column, respectively.
     """
 
     # extract b and a coefficients
@@ -143,25 +145,26 @@ def get_power_complementary_filters(A1, A2):
     H1a = A1a.T*A2a
     H2b = 0.5*(A1b.T.dot(A2a) - A1a.T.dot(A2b))
 
-    M, N     = H1b.shape
-    H1b_sort = np.zeros((M+N,1))
-    H2b_sort = np.zeros((M+N,1))
-    H1a_sort = np.zeros((M+N,1))
-    H2a_sort = np.zeros((M+N,1))
+    M, N = H1b.shape
+    H1b_sort = np.zeros((M+N, 1))
+    H2b_sort = np.zeros((M+N, 1))
+    H1a_sort = np.zeros((M+N, 1))
+    H2a_sort = np.zeros((M+N, 1))
 
     for mm in range(M):
         for nn in range(N):
-            H1b_sort[mm+nn] += H1b[mm,nn]
-            H2b_sort[mm+nn] += H2b[mm,nn]
-            H1a_sort[mm+nn] += H1a[mm,nn]
-            H2a_sort[mm+nn] += H1a[mm,nn]
+            H1b_sort[mm+nn] += H1b[mm, nn]
+            H2b_sort[mm+nn] += H2b[mm, nn]
+            H1a_sort[mm+nn] += H1a[mm, nn]
+            H2a_sort[mm+nn] += H1a[mm, nn]
 
     H1 = np.hstack((H1b_sort, H1a_sort))
     H2 = np.hstack((H2b_sort, H2a_sort))
 
     return (H1, H2)
 
-def any_to_ap_pair(b,a):
+
+def any_to_ap_pair(b, a):
     """Converts any filter that satisfies the constraints in [1]_ to a pair of
     doubly-complementary all-pass filters.
 
@@ -187,17 +190,17 @@ def any_to_ap_pair(b,a):
     b = b.flatten()
     a = a.flatten()
 
-    P = b/a[0] # numerator polynomial
-    D = a/a[0] # denominator polynomial
+    P = b/a[0]  # numerator polynomial
+    D = a/a[0]  # denominator polynomial
 
     # get P's doubly-complementary polynomial Q
-    Q = get_power_complementary_q(P,D)
+    Q = get_power_complementary_q(P, D)
 
     z1 = np.roots(P+Q)
     # z2 = np.roots(P-Q)
 
     # calculate the all-pass functions
-    A2a = np.poly(z1[np.abs(z1)<1])
+    A2a = np.poly(z1[np.abs(z1) < 1])
     A2b = A2a[::-1]
     A1b = np.poly(z1[np.abs(z1) >= 1])
     A1a = A1b[::-1]
@@ -210,6 +213,7 @@ def any_to_ap_pair(b,a):
     A2 = np.vstack((A2b, A2a)).T
 
     return A1, A2
+
 
 class LTISys(object):
     """An LTI filter class.
@@ -244,7 +248,7 @@ class LTISys(object):
         self.__nchn = nchn
 
         order = max(Mb, Ma)-1
-        self.__states = np.zeros((self.__nchn,order))
+        self.__states = np.zeros((self.__nchn, order))
 
     def filter(self, in_sig, axis=-1):
         """Filter an N-dimensional signal.  See scipy.signal.lfilter for more
@@ -265,12 +269,12 @@ class LTISys(object):
         in_sig = np.atleast_2d(in_sig)
         out_sig = np.zeros(in_sig.shape)
         for i in range(self.__nchn):
-            out_sig[i,:], self.__states[i,:] = sig.lfilter(
-                b    = self.__b,
-                a    = self.__a,
-                x    = in_sig[i,:],
-                axis = axis,
-                zi   = self.__states[i,:]
+            out_sig[i, :], self.__states[i, :] = sig.lfilter(
+                b=self.__b,
+                a=self.__a,
+                x=in_sig[i, :],
+                axis=axis,
+                zi=self.__states[i, :]
             )
 
         return out_sig
@@ -281,6 +285,7 @@ class LTISys(object):
                  doc='The recursive filter coefficients.')
     n_chn = property(fget=lambda self: self.__nchn,
                      doc='The number of channels of the filter.')
+
 
 class RMFilterBank(object):
     """A Class that implements a Regalia-Mitra filter bank.
@@ -304,8 +309,8 @@ class RMFilterBank(object):
         -------
 
         max_edge_freq : float
-            The highest edge frequency of the filter bank (in Hz), that is, the edge
-            frequency of the final high-pass.
+            The highest edge frequency of the filter bank (in Hz), that is, the
+            edge frequency of the final high-pass.
         fs : float
             The sampling rate in Hz.
         order : int
@@ -316,12 +321,12 @@ class RMFilterBank(object):
         nchn : int (optional)
             The number of channels the filter bank should support.
         w_co : list-like (optional)
-            An optional list of edge frequencies (in Hz).  This overrides nbands
-            if given.
+            An optional list of edge frequencies (in Hz).  This overrides
+            nbands if given.
         filter_type : string (optional)
-            The type of design used for the low-pass filters.  Valid values are:
-            'ellip' (Elliptical design; the default), and 'butter' (Butterworth
-            design).
+            The type of design used for the low-pass filters.  Valid values
+            are: 'ellip' (Elliptical design; the default), and 'butter'
+            (Butterworth design).
         """
 
         # override nbands if w_co is passed
@@ -330,34 +335,44 @@ class RMFilterBank(object):
 
         self.__nbands = nbands
 
-        self.__AP     = []
-        self.__H      = []
+        self.__AP = []
+        self.__H = []
         self.__edge_freqs = None
-        self.__gen_filter_bank(max_edge_freq, fs, order, nbands, filter_type, w_co)
+        self.__gen_filter_bank(max_edge_freq, fs, order, nbands, filter_type,
+                               w_co)
 
         # construct the analysis filter tree
         self.__ana_filters = []
         for i in xrange(nbands-1):
             self.__ana_filters.append([])
             for j in xrange(i):
-                self.__ana_filters[i].append(LTISys(*np.hsplit(self.__AP[i][0], 2), nchn=nchn))
+                self.__ana_filters[i].append(
+                    LTISys(*np.hsplit(self.__AP[i][0], 2), nchn=nchn)
+                )
             for h in self.__AP[i][::-1]:
-                self.__ana_filters[i].append(LTISys(*np.hsplit(h, 2), nchn=nchn))
+                self.__ana_filters[i].append(
+                    LTISys(*np.hsplit(h, 2), nchn=nchn)
+                )
 
         # construct the synthesis filter tree
         self.__syn_filters = []
         for i in xrange(nbands-1):
             self.__syn_filters.append([])
             for j in xrange(nbands-2-i):
-                self.__syn_filters[i].append(LTISys(*np.hsplit(self.__AP[nbands-2-i][1], 2), nchn=nchn))
+                self.__syn_filters[i].append(
+                    LTISys(*np.hsplit(self.__AP[nbands-2-i][1], 2), nchn=nchn)
+                )
             for h in self.__AP[nbands-2-i]:
-                self.__syn_filters[i].append(LTISys(*np.hsplit(h, 2), nchn=nchn))
+                self.__syn_filters[i].append(
+                    LTISys(*np.hsplit(h, 2), nchn=nchn)
+                )
 
-    def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type, w_co=[]):
+    def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type,
+                          w_co=[]):
         """Function to generate AP filters for constructing a Regalia-Mitra
-        filter bank with equidistant edge frequencies.  First, low-pass elliptic
-        filters are designed.  Secondly, the AP filters from which the LP and
-        it's doubly-complementary HP filter can be derived via butterfly
+        filter bank with equidistant edge frequencies.  First, low-pass
+        elliptic filters are designed.  Secondly, the AP filters from which the
+        LP and it's doubly-complementary HP filter can be derived via butterfly
         operation are calculated.  Thirdly, the doubly-complementary high-pass
         filter is calculated.
 
@@ -375,12 +390,12 @@ class RMFilterBank(object):
         nbands : int
             The number of frequency bands of the filter bank.
         filter_type : string (optional)
-            The type of design used for the low-pass filters.  Valid values are:
-            'ellip' (Elliptical design; the default), and 'butter' (Butterworth
-            design).
+            The type of design used for the low-pass filters.  Valid values
+            are: 'ellip' (Elliptical design; the default), and 'butter'
+            (Butterworth design).
         w_co : list-like (optional)
-            An optional list of edge frequencies (in Hz).  This overrides nbands
-            if given.
+            An optional list of edge frequencies (in Hz).  This overrides
+            nbands if given.
 
 
         Returns:
@@ -397,24 +412,26 @@ class RMFilterBank(object):
         """
 
         if not w_co:
-            # split edge frequencies evenly (though arbitrarily limit edge frequencies to
-            # user configurable value)
-            w_co = np.linspace(max_edge_freq/nbands, max_edge_freq, nbands)[:-1]/(fs/2.)
+            # split edge frequencies evenly (though arbitrarily limit edge
+            # frequencies to user configurable value)
+            w_co = np.linspace(max_edge_freq/nbands, max_edge_freq,
+                               nbands)[:-1]/(fs/2.)
         else:
             w_co = np.array(w_co)
             w_co = w_co/(fs/2.)
 
         self.__edge_freqs = w_co*fs/2
 
-        b = np.zeros((nbands,order+1))
-        a = np.zeros((nbands,order+1))
+        b = np.zeros((nbands, order+1))
+        a = np.zeros((nbands, order+1))
 
         for i in range(nbands-1):
             # original filter
             #
-            # If the pass-band is maximally flat, one could perhaps optimise for
-            # performance by approximating the filter by using only lowest necessary LP
-            # filter instead of going through all previous filters.
+            # If the pass-band is maximally flat, one could perhaps optimise
+            # for performance by approximating the filter by using only lowest
+            # necessary LP filter instead of going through all previous
+            # filters.
 
             if filter_type == 'butter':
                 b_d, a_d = sig.butter(order, w_co[-1-i], 'low')
@@ -426,15 +443,15 @@ class RMFilterBank(object):
             b[i] = b_d/a_d[0]
             a[i] = a_d/a_d[0]
 
-            A1, A2 = any_to_ap_pair(b[i],a[i])
-            H1, H2 = get_power_complementary_filters(A1,A2)
+            A1, A2 = any_to_ap_pair(b[i], a[i])
+            H1, H2 = get_power_complementary_filters(A1, A2)
 
             self.__AP.append((A1, A2))
             self.__H.append((H1, H2))
 
     def analyze(self, in_sig):
-        """Split an input signal into multiple frequency bands using an analysis
-        filter bank.
+        """Split an input signal into multiple frequency bands using an
+        analysis filter bank.
 
         Inputs:
         -------
@@ -453,7 +470,7 @@ class RMFilterBank(object):
 
         nchn, nsmp = in_sig.shape
 
-        out_sig    = np.zeros((self.__nbands, nchn, nsmp))
+        out_sig = np.zeros((self.__nbands, nchn, nsmp))
         out_sig[0] = in_sig.copy()
 
         for i, s in enumerate(self.__ana_filters):
@@ -472,8 +489,8 @@ class RMFilterBank(object):
         """Reconstruct a signal from it's band-split representation using a
         synthesis filter bank.
 
-        Note that due to the all-pass complementary property of the filter bank,
-        it is possible to simply sum up the bands.
+        Note that due to the all-pass complementary property of the filter
+        bank, it is possible to simply sum up the bands.
 
         Inputs:
         -------
@@ -507,7 +524,8 @@ class RMFilterBank(object):
     )
     H = property(
         fget=lambda self: self.__H,
-        doc='Doubly-complementary low-pass/high-pass pairs., calculated from the all-pass pairs.'
+        doc='Doubly-complementary low-pass/high-pass pairs,'
+            ' calculated from the all-pass pairs.'
     )
     edge_freqs = property(
         fget=lambda self: self.__edge_freqs,
