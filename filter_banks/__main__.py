@@ -1,8 +1,10 @@
+import argparse
+
 from matplotlib import pyplot as plt
 import numpy as np
 import scipy.signal as sig
 import scipy.fftpack as fftpack
-import argparse
+
 import regalia_mitra
 
 parser = argparse.ArgumentParser()
