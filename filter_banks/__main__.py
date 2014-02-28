@@ -125,7 +125,7 @@ for i, t in enumerate(tf2):
     ax.plot(20*np.log10(np.abs(t[0])+my_eps),
             label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
     ax.plot(20*np.log10(np.abs(t[1])+my_eps),
-            label="High-Pass $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+            label="High-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
     ax.set_ylim([-100, 0])
 
 ax = fig2.add_subplot(312)
