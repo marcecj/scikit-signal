@@ -100,11 +100,9 @@ ax.legend()
 # Test RMFilterBank class
 #
 
-rm_fb = regalia_mitra.RMFilterBank(fe_max, fs,
-                                   order=order,
-                                   nbands=nbands,
-                                   nchn=nchn,
-                                   w_co=w_co)
+rm_fb = regalia_mitra.RMFilterBank(
+    fe_max, fs, order=order, nbands=nbands, nchn=nchn, w_co=w_co
+)
 
 bs_sig = rm_fb.analyze(im_sig)
 out_sig = rm_fb.synthesize(bs_sig)
