@@ -433,6 +433,7 @@ class RMFilterBank(object):
             # necessary LP filter instead of going through all previous
             # filters.
 
+            # TODO: change this to allow arbitrary function/argument pairs.
             if filter_type == 'butter':
                 b_d, a_d = sig.butter(order, w_co[-1-i], 'low')
             elif filter_type == 'ellip':
