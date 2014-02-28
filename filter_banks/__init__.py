@@ -1,10 +1,10 @@
 """This package contains functions and classes that implement various forms of
 filter banks.
 
-Subpackages
+Submodules
 -----------
 
-This package contains the following sub-packages:
+This package contains the following sub-modules:
 
 ::
 
