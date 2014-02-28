@@ -11,4 +11,6 @@ This package contains the following sub-modules:
     regalia_mitra -- Regalia-Mitra doubly-complementary filter bank
 """
 
-from . import regalia_mitra
+from . regalia_mitra import RMFilterBank
+
+__all__ = ['RMFilterBank']
