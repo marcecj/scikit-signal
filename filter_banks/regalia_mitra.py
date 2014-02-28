@@ -420,7 +420,7 @@ class RMFilterBank(object):
             w_co = np.array(w_co)
             w_co = w_co/(fs/2.)
 
-        self.__edge_freqs = w_co*fs/2
+        self.__edge_freqs = w_co[::-1]*fs/2
 
         b = np.zeros((nbands, order+1))
         a = np.zeros((nbands, order+1))
