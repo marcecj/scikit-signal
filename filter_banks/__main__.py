@@ -58,10 +58,10 @@ im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 #
 
 # parameters
-order = 5       # filter order
+f_order = 5     # filter order
 f_edge = 3e3    # edge frequency
 
-b, a = sig.butter(order, f_edge*2/fs)
+b, a = sig.butter(f_order, f_edge*2/fs)
 
 ltisys = regalia_mitra.LTISys(b, a)
 
