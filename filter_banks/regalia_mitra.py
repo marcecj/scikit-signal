@@ -508,7 +508,7 @@ class RMFilterBank(object):
 
         out_sig = bs_sig.copy()
 
-        for i, s in enumerate(self.__syn_filters):
+        for s in self.__syn_filters:
             out_sig[-2:] = np.array((0.5*(out_sig[-1] - out_sig[-2]),
                                      0.5*(out_sig[-1] + out_sig[-2])))
             for j, h in enumerate(s):
