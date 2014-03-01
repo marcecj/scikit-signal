@@ -301,7 +301,7 @@ class RMFilterBank(object):
                  order,
                  nbands=2,
                  nchn=1,
-                 w_co=[],
+                 w_co=None,
                  filter_type='ellip'):
         """Initialise an RMFilterBank object.
 
@@ -368,7 +368,7 @@ class RMFilterBank(object):
                 )
 
     def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type,
-                          w_co=[]):
+                          w_co=None):
         """Function to generate AP filters for constructing a Regalia-Mitra
         filter bank with equidistant edge frequencies.  First, low-pass
         elliptic filters are designed.  Secondly, the AP filters from which the
