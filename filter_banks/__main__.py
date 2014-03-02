@@ -63,7 +63,7 @@ f_edge = 3e3    # edge frequency
 
 b, a = sig.butter(f_order, f_edge*2/fs)
 
-ltisys = regalia_mitra.LTISys(b, a)
+ltisys = regalia_mitra.LTISys(b, a, nchn=2)
 
 print("Filter coeffs:")
 print("b =", b)
