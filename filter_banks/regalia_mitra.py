@@ -264,18 +264,25 @@ class LTISys(object):
 
         """
 
+        # Swap the axes here instead of passing the axis argument to
+        # scipy.signal.lfilter because in the latter case the shape of the
+        # states would not match the shape of the input signal, leading to an
+        # error in lfilter.
+        in_sig = np.atleast_2d(in_sig).swapaxes(axis, -1)
+
+        if in_sig.shape[0] != self.__nchn:
+            raise ValueError('in_sig has the wrong number of channels.')
+
         # TODO: file a bug report: when zi has the wrong dimensionality,
         # lfilter causes SIGSEG's, SIGABRT's, etc.
-        in_sig = np.atleast_2d(in_sig)
         out_sig, self.__states = sig.lfilter(
             b=self.__b,
             a=self.__a,
             x=in_sig,
-            axis=axis,
             zi=self.__states
         )
 
-        return out_sig
+        return out_sig.swapaxes(axis, -1)
 
     @property
     def b(self):
