@@ -256,7 +256,7 @@ class LTISys(object):
         -----------
 
         in_sig : numpy.ndarray
-            The input signal; it must have self.n_chn channels.
+            The input signal; it must have self.nchn channels.
         axis : int (optional)
             The axis along which the filter operates (default: -1).
 
@@ -279,8 +279,8 @@ class LTISys(object):
                  doc='The non-recursive filter coefficients.')
     a = property(fget=lambda self: self.__a,
                  doc='The recursive filter coefficients.')
-    n_chn = property(fget=lambda self: self.__nchn,
-                     doc='The number of channels of the filter.')
+    nchn = property(fget=lambda self: self.__nchn,
+                    doc='The number of channels of the filter.')
 
 
 class RMFilterBank(object):
