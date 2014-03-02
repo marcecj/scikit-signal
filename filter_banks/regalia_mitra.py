@@ -292,33 +292,34 @@ class RMFilterBank(object):
     """
 
     def __init__(self,
-                 max_edge_freq,
-                 fs,
                  order,
+                 fs=1.0,
+                 max_edge_freq=None,
                  nbands=2,
-                 nchn=1,
                  w_co=None,
+                 nchn=1,
                  filter_type='ellip'):
         """Initialise an RMFilterBank object.
 
         Inputs:
         -------
 
-        max_edge_freq : float
-            The highest edge frequency of the filter bank (in Hz), that is, the
-            edge frequency of the final high-pass.
-        fs : float
-            The sampling rate in Hz.
         order : int
             The order of the low-pass filters used to create the all-pass
             filters.
+        fs : float, optional
+            The sampling rate in Hz (default: 1.0).
+        max_edge_freq : float, optional
+            The highest edge frequency of the filter bank (in Hz), that is, the
+            edge frequency of the final high-pass.  If None (the default), and
+            if w_co is None, then it is set to fs/2.
         nbands : int, optional
             The number of frequency bands of the filter bank (default: 2).
-        nchn : int, optional
-            The number of channels the filter bank should support.
         w_co : list-like, optional
             An optional list of edge frequencies (in Hz).  This overrides
             nbands if given.
+        nchn : int, optional
+            The number of channels the filter bank should support.
         filter_type : string, optional
             The type of design used for the low-pass filters.  Valid values
             are: 'ellip' (Elliptical design; the default), and 'butter'
@@ -329,13 +330,16 @@ class RMFilterBank(object):
         if w_co:
             nbands = len(w_co)+1
 
+        if not max_edge_freq:
+            max_edge_freq = fs/2
+
         self.__nbands = nbands
 
         self.__AP = []
         self.__H = []
         self.__edge_freqs = None
-        self.__gen_filter_bank(max_edge_freq, fs, order, nbands, filter_type,
-                               w_co)
+        self.__gen_filter_bank(order, fs, max_edge_freq, w_co, nbands,
+                               filter_type)
 
         # construct the analysis filter tree
         self.__ana_filters = []
@@ -363,8 +367,8 @@ class RMFilterBank(object):
                     LTISys(*np.hsplit(h, 2), nchn=nchn)
                 )
 
-    def __gen_filter_bank(self, max_edge_freq, fs, order, nbands, filter_type,
-                          w_co):
+    def __gen_filter_bank(self, order, fs, max_edge_freq, w_co, nbands,
+                          filter_type):
         """Function to generate AP filters for constructing a Regalia-Mitra
         filter bank with equidistant edge frequencies.  First, low-pass
         elliptic filters are designed.  Secondly, the AP filters from which the
@@ -375,24 +379,23 @@ class RMFilterBank(object):
         Parameters:
         -----------
 
-        max_edge_freq : float
-            The highest edge frequency of the filter bank (in Hz), that is,
-            the edge frequency of the final high-pass.
-        fs : float
-            The sampling frequency (in Hz).
         order : int
             The order of the low-pass filters used to create the all-pass
             filters.
+        fs : float
+            The sampling frequency (in Hz).
+        max_edge_freq : float
+            The highest edge frequency of the filter bank (in Hz), that is, the
+            edge frequency of the final high-pass.
         nbands : int
             The number of frequency bands of the filter bank.
+        w_co : list-like
+            An optional list of edge frequencies (in Hz).  This overrides
+            nbands if given.
         filter_type : string, optional
             The type of design used for the low-pass filters.  Valid values
             are: 'ellip' (Elliptical design; the default), and 'butter'
             (Butterworth design).
-        w_co : list-like
-            An optional list of edge frequencies (in Hz).  This overrides
-            nbands if given.
-
 
         Returns:
         --------
