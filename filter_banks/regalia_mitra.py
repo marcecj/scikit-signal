@@ -275,12 +275,20 @@ class LTISys(object):
 
         return out_sig
 
-    b = property(fget=lambda self: self.__b,
-                 doc='The non-recursive filter coefficients.')
-    a = property(fget=lambda self: self.__a,
-                 doc='The recursive filter coefficients.')
-    nchn = property(fget=lambda self: self.__nchn,
-                    doc='The number of channels of the filter.')
+    @property
+    def b(self):
+        "The non-recursive filter coefficients."
+        return self.__b
+
+    @property
+    def a(self):
+        "The recursive filter coefficients."
+        return self.__a
+
+    @property
+    def nchn(self):
+        "The number of channels of the filter."
+        return self.__nchn
 
 
 class RMFilterBank(object):
@@ -518,16 +526,19 @@ class RMFilterBank(object):
 
         return out_sig[0]
 
-    AP = property(
-        fget=lambda self: self.__AP,
-        doc='The all-pass filter pairs that make up the filter bank.'
-    )
-    H = property(
-        fget=lambda self: self.__H,
-        doc='Doubly-complementary low-pass/high-pass pairs,'
-            ' calculated from the all-pass pairs.'
-    )
-    edge_freqs = property(
-        fget=lambda self: self.__edge_freqs,
-        doc='The edge frequencies of the filter bank.'
-    )
+    @property
+    def AP(self):
+        "The all-pass filter pairs that make up the filter bank."
+        return self.__AP
+
+    @property
+    def H(self):
+        """Doubly-complementary low-pass/high-pass pairs, calculated from the
+        all-pass pairs.
+        """
+        return self.__H
+
+    @property
+    def edge_freqs(self):
+        "The edge frequencies of the filter bank."
+        return self.__edge_freqs
