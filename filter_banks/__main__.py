@@ -7,10 +7,12 @@ import scipy.fftpack as fftpack
 
 from . import regalia_mitra
 
+SIG_LEN = 48000
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--fs",
                     dest="fs",
-                    default=48000,
+                    default=SIG_LEN,
                     type=int,
                     help="The sampling frequency")
 parser.add_argument("-c", "--nchn",
@@ -51,7 +53,7 @@ order = args.order
 w_co = args.freqs
 fe_max = args.fe_max
 
-im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
+im_sig = np.array([[1]+[0 for i in range(SIG_LEN-1)]]*nchn)
 
 #
 # Test LTISys helper class
@@ -61,7 +63,7 @@ im_sig = np.array([[1]+[0 for i in range(fs-1)]]*nchn)
 f_order = 5     # filter order
 f_edge = 3e3    # edge frequency
 
-b, a = sig.butter(f_order, f_edge*2/fs)
+b, a = sig.butter(f_order, f_edge*2/SIG_LEN)
 
 ltisys = regalia_mitra.LTISys(b, a, nchn=2)
 
@@ -107,11 +109,11 @@ rm_fb = regalia_mitra.RMFilterBank(
 bs_sig = rm_fb.analyze(im_sig)
 out_sig = rm_fb.synthesize(bs_sig)
 
-bs_spec = fftpack.fft(bs_sig)[..., :fs/2+1]
-out_spec = fftpack.fft(out_sig)[0, :fs/2+1]
+bs_spec = fftpack.fft(bs_sig)[..., :SIG_LEN/2+1]
+out_spec = fftpack.fft(out_sig)[0, :SIG_LEN/2+1]
 
-tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=fs//2)[1],
-        sig.freqz(*np.hsplit(h[1], 2), worN=fs//2)[1],)
+tf2 = [(sig.freqz(*np.hsplit(h[0], 2), worN=SIG_LEN//2)[1],
+        sig.freqz(*np.hsplit(h[1], 2), worN=SIG_LEN//2)[1],)
        for h in rm_fb.H]
 
 fig2, ax = plt.subplots(3, 1, sharex=True, tight_layout={'pad': 0.15})
@@ -119,9 +121,9 @@ fig2, ax = plt.subplots(3, 1, sharex=True, tight_layout={'pad': 0.15})
 ax[0].set_title('Frequency response of the LP and HP filters.')
 for i, t in enumerate(tf2):
     ax[0].plot(20*np.log10(np.abs(t[0])+my_eps),
-               label="Low-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+               label="Low-Pass, $f_c=%.3f$ Hz" % rm_fb.edge_freqs[i])
     ax[0].plot(20*np.log10(np.abs(t[1])+my_eps),
-               label="High-Pass, $f_c=%.0f$ Hz" % rm_fb.edge_freqs[i])
+               label="High-Pass, $f_c=%.3f$ Hz" % rm_fb.edge_freqs[i])
     ax[0].set_ylim([-100, 0])
 
 ax[1].set_title('Frequency response of the bands.')
@@ -142,6 +144,6 @@ ax[-1].set_xlabel('Frequency f in Hz')
 for ax in fig2.axes:
     ax.legend()
     ax.set_ylabel('Magnitude in dB FS')
-    ax.set_xlim((0, fs/2+1))
+    ax.set_xlim((0, SIG_LEN/2+1))
 
 plt.show()
