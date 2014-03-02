@@ -243,11 +243,9 @@ class LTISys(object):
         self.__a = a
         self.__b = b
 
-        Ma, Mb = a.size, b.size
-
         self.__nchn = nchn
 
-        order = max(Mb, Ma)-1
+        order = max(a.size, b.size)-1
         self.__states = np.zeros((self.__nchn, order))
 
     def filter(self, in_sig, axis=-1):
