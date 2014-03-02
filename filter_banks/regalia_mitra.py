@@ -312,14 +312,14 @@ class RMFilterBank(object):
         order : int
             The order of the low-pass filters used to create the all-pass
             filters.
-        nbands : int (optional)
+        nbands : int, optional
             The number of frequency bands of the filter bank (default: 2).
-        nchn : int (optional)
+        nchn : int, optional
             The number of channels the filter bank should support.
-        w_co : list-like (optional)
+        w_co : list-like, optional
             An optional list of edge frequencies (in Hz).  This overrides
             nbands if given.
-        filter_type : string (optional)
+        filter_type : string, optional
             The type of design used for the low-pass filters.  Valid values
             are: 'ellip' (Elliptical design; the default), and 'butter'
             (Butterworth design).
@@ -385,7 +385,7 @@ class RMFilterBank(object):
             filters.
         nbands : int
             The number of frequency bands of the filter bank.
-        filter_type : string (optional)
+        filter_type : string, optional
             The type of design used for the low-pass filters.  Valid values
             are: 'ellip' (Elliptical design; the default), and 'butter'
             (Butterworth design).
