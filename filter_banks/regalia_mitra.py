@@ -35,6 +35,8 @@ realization of low-sensitivity IIR digital filters', Acoustics, Speech and
 Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361, Apr 1986
 """
 
+from inspect import isfunction
+
 import numpy as np
 import scipy.signal as sig
 
@@ -306,7 +308,7 @@ class RMFilterBank(object):
                  nbands=2,
                  w_co=None,
                  nchn=1,
-                 filter_type='ellip'):
+                 design_func=None):
         """Initialise an RMFilterBank object.
 
         Inputs:
@@ -328,10 +330,16 @@ class RMFilterBank(object):
             nbands if given.
         nchn : int, optional
             The number of channels the filter bank should support.
-        filter_type : string, optional
-            The type of design used for the low-pass filters.  Valid values
-            are: 'ellip' (Elliptical design; the default), and 'butter'
-            (Butterworth design).
+        design_func : function, optional
+            A function that designs a low-pass filter.  It must implement the
+            following API:
+
+                b, a = design_func(order, w_e)
+
+            Its arguments are the filter order and the edge frequency
+            normalised to ``fs=1``, and its return values are the b and a
+            coefficients of the filter.  The default is to design an elliptic
+            filter with ``rp=1e-5`` and ``rs=50``.
         """
 
         # override nbands if w_co is passed
@@ -347,7 +355,7 @@ class RMFilterBank(object):
         self.__H = []
         self.__edge_freqs = None
         self.__gen_filter_bank(order, fs, max_edge_freq, w_co, nbands,
-                               filter_type)
+                               design_func)
 
         # construct the analysis filter tree
         self.__ana_filters = []
@@ -376,7 +384,7 @@ class RMFilterBank(object):
                 )
 
     def __gen_filter_bank(self, order, fs, max_edge_freq, w_co, nbands,
-                          filter_type):
+                          design_func):
         """Function to generate AP filters for constructing a Regalia-Mitra
         filter bank with equidistant edge frequencies.  First, low-pass
         elliptic filters are designed.  Secondly, the AP filters from which the
@@ -400,10 +408,16 @@ class RMFilterBank(object):
         w_co : list-like
             An optional list of edge frequencies (in Hz).  This overrides
             nbands if given.
-        filter_type : string, optional
-            The type of design used for the low-pass filters.  Valid values
-            are: 'ellip' (Elliptical design; the default), and 'butter'
-            (Butterworth design).
+        design_func : function, optional
+            A function that designs a low-pass filter.  It must implement the
+            following API:
+
+                b, a = design_func(order, w_e)
+
+            Its arguments are the filter order and the edge frequency
+            normalised to ``fs=1``, and its return values are the b and a
+            coefficients of the filter.  The default is to design an elliptic
+            filter with ``rp=1e-4`` and ``rs=50``.
 
         Returns:
         --------
@@ -427,6 +441,11 @@ class RMFilterBank(object):
             w_co = np.array(w_co)
             w_co = w_co/(fs/2.)
 
+        if not design_func:
+            design_func = lambda o, w: sig.ellip(o, 1e-5, 50, w)
+        elif not isfunction(design_func):
+            raise ValueError('"design_func" is not a function.')
+
         self.__edge_freqs = w_co[::-1]*fs/2
 
         b = np.zeros((nbands, order+1))
@@ -440,13 +459,7 @@ class RMFilterBank(object):
             # necessary LP filter instead of going through all previous
             # filters.
 
-            # TODO: change this to allow arbitrary function/argument pairs.
-            if filter_type == 'butter':
-                b_d, a_d = sig.butter(order, w_co[-1-i], 'low')
-            elif filter_type == 'ellip':
-                b_d, a_d = sig.ellip(order, 0.0001, 50, w_co[-1-i])
-            else:
-                raise ValueError('Bad filter type!')
+            b_d, a_d = design_func(order, w_co[-1-i])
 
             b[i] = b_d/a_d[0]
             a[i] = a_d/a_d[0]
