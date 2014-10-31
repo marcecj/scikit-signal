@@ -8,8 +8,8 @@ the special property of being doubly-complementary, i.e., simultaneously
 all-pass- and power-complementary.  For an N-band filter bank, this means that
 the following two equations hold for its output filters::
 
-    |sum[k=0..N] H_k(z)|   =   1
-    sum[k=0..N] |H_k(z)|^2 =   1.
+    |sum[k=0..N]  H_k(z)|   = 1
+     sum[k=0..N] |H_k(z)|^2 = 1
 
 Regalia-Mitra filter banks consist of two stages: an analysis and a synthesis
 filter bank.  However, due to the all-pass complementary property, it is
@@ -47,9 +47,8 @@ def get_power_complementary_q(P, D):
     of filters that is simultaneously all-pass-complementary and
     power-complementary, i.e.::
 
-            |P(z)/D(z)      +   Q(z)/D(z)|      =   1
-      and
-            |P(z)/D(z)|^2   +   |Q(z)/D(z)|^2   =   1.
+        |P(z)/D(z)    +  Q(z)/D(z)|   = 1
+        |P(z)/D(z)|^2 + |Q(z)/D(z)|^2 = 1.
 
     Parameters
     ----------
@@ -112,8 +111,8 @@ def get_power_complementary_filters(A1, A2):
     "doubly-complementary" means a group of filters that is simultaneously
     all-pass-complementary and power-complementary, i.e.::
 
-            |H1(z)      +   H2(z)|      =   1
-            |H1(z)|^2   +   |H2(z)|^2   =   1,
+        |H1(z)    +  H2(z)|   = 1
+        |H1(z)|^2 + |H2(z)|^2 = 1,
 
     where H1 is the original filter from which A1 and A2 were calculated.
 
