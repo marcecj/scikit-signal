@@ -458,10 +458,7 @@ class RMFilterBank(object):
 
             b_d, a_d = lowpass_design_func(w_co[-1-i])
 
-            b = b_d/a_d[0]
-            a = a_d/a_d[0]
-
-            A1, A2 = any_to_ap_pair(b, a)
+            A1, A2 = any_to_ap_pair(b_d/a_d[0], a_d/a_d[0])
             H1, H2 = get_power_complementary_filters(A1, A2)
 
             self.__AP.append((A1, A2))
