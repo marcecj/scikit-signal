@@ -1,7 +1,10 @@
 """This package contains functions and classes that implement various forms of
 filter banks.
 
-This package contains the following modules::
+This package contains the following modules:
+
+.. autosummary::
+   :toctree: modules/
 
     regalia_mitra -- Regalia-Mitra doubly-complementary filter bank
 """
