@@ -318,8 +318,8 @@ class RMFilterBank(object):
         numbands : int, optional
             The number of frequency bands of the filter bank (default: 2).
         w_co : list-like, optional
-            An optional list of edge frequencies (in Hz).  This overrides
-            `numbands` if given.
+            A list of edge frequencies (in Hz).  This overrides `numbands` if
+            given.
         nchn : int, optional
             The number of channels the filter bank should support.
         lowpass_design_func : function, optional
@@ -395,8 +395,8 @@ class RMFilterBank(object):
         numbands : int
             The number of frequency bands of the filter bank.
         w_co : list-like
-            An optional list of edge frequencies (in Hz).  This overrides
-            `numbands` if given.
+            A list of edge frequencies (in Hz).  This overrides `numbands` if
+            given.
         lowpass_design_func : function, optional
             A function that designs a low-pass filter.  It must implement the
             following API:
