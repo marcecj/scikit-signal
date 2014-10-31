@@ -103,7 +103,8 @@ ax.legend()
 #
 
 rm_fb = regalia_mitra.RMFilterBank(
-    order, fs, fe_max, nbands=nbands, nchn=nchn, w_co=w_co
+    fs, fe_max, nbands=nbands, nchn=nchn, w_co=w_co,
+    lowpass_design_func=lambda w: sig.ellip(order, 1e-5, 50, w)
 )
 
 bs_sig = rm_fb.analyze(im_sig)

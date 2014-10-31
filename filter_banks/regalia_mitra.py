@@ -309,7 +309,6 @@ class RMFilterBank(object):
     """
 
     def __init__(self,
-                 order,
                  fs=1.0,
                  max_edge_freq=None,
                  nbands=2,
@@ -321,9 +320,6 @@ class RMFilterBank(object):
         Inputs:
         -------
 
-        order : int
-            The order of the low-pass filters used to create the all-pass
-            filters.
         fs : float, optional
             The sampling rate in Hz (default: 1.0).
         max_edge_freq : float, optional
@@ -341,12 +337,12 @@ class RMFilterBank(object):
             A function that designs a low-pass filter.  It must implement the
             following API:
 
-                b, a = lowpass_design_func(order, w_e)
+                b, a = lowpass_design_func(w_e)
 
-            Its arguments are the filter order and the edge frequency
-            normalised to ``fs=1``, and its return values are the b and a
-            coefficients of the filter.  The default is to design an elliptic
-            filter with ``rp=1e-5`` and ``rs=50``.
+            Its sole argument is the edge frequency normalised to ``fs=1``, and
+            its return values are the b and a coefficients of the filter.  The
+            default is to design an elliptic filter with ``N=7``, ``rp=1e-4``
+            and ``rs=50``.
         """
 
         # override nbands if w_co is passed
@@ -361,7 +357,7 @@ class RMFilterBank(object):
         self.__AP = []
         self.__H = []
         self.__edge_freqs = None
-        self.__gen_filter_bank(order, fs, max_edge_freq, w_co, nbands,
+        self.__gen_filter_bank(fs, max_edge_freq, w_co, nbands,
                                lowpass_design_func)
 
         # construct the analysis filter tree
@@ -390,7 +386,7 @@ class RMFilterBank(object):
                     LTISys(*np.hsplit(h, 2), nchn=nchn)
                 )
 
-    def __gen_filter_bank(self, order, fs, max_edge_freq, w_co, nbands,
+    def __gen_filter_bank(self, fs, max_edge_freq, w_co, nbands,
                           lowpass_design_func):
         """Function to generate AP filters for constructing a Regalia-Mitra
         filter bank with equidistant edge frequencies.  First, low-pass
@@ -402,9 +398,6 @@ class RMFilterBank(object):
         Parameters:
         -----------
 
-        order : int
-            The order of the low-pass filters used to create the all-pass
-            filters.
         fs : float
             The sampling frequency (in Hz).
         max_edge_freq : float
@@ -419,12 +412,12 @@ class RMFilterBank(object):
             A function that designs a low-pass filter.  It must implement the
             following API:
 
-                b, a = lowpass_design_func(order, w_e)
+                b, a = lowpass_design_func(w_e)
 
-            Its arguments are the filter order and the edge frequency
-            normalised to ``fs=1``, and its return values are the b and a
-            coefficients of the filter.  The default is to design an elliptic
-            filter with ``rp=1e-4`` and ``rs=50``.
+            Its sole argument is the edge frequency normalised to ``fs=1``, and
+            its return values are the b and a coefficients of the filter.  The
+            default is to design an elliptic filter with ``N=7``, ``rp=1e-4``
+            and ``rs=50``.
 
         Returns:
         --------
@@ -449,7 +442,7 @@ class RMFilterBank(object):
             w_co = w_co/(fs/2.)
 
         if not lowpass_design_func:
-            lowpass_design_func = lambda o, w: sig.ellip(o, 1e-5, 50, w)
+            lowpass_design_func = lambda w: sig.ellip(7, 1e-5, 50, w)
         elif not isfunction(lowpass_design_func):
             raise ValueError('"lowpass_design_func" is not a function.')
 
@@ -463,7 +456,7 @@ class RMFilterBank(object):
             # necessary LP filter instead of going through all previous
             # filters.
 
-            b_d, a_d = lowpass_design_func(order, w_co[-1-i])
+            b_d, a_d = lowpass_design_func(w_co[-1-i])
 
             b = b_d/a_d[0]
             a = a_d/a_d[0]
