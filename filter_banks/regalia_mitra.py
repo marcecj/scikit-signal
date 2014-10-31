@@ -225,19 +225,21 @@ class LTISys(object):
     This is a simple class that implements an LTI system by wrapping
     `scipy.signal.lfilter`.  Its primary purpose is to take care of the filter
     state.
+
+    Parameters
+    ----------
+    b : numpy.ndarray
+        The non-recursive filter coefficients.
+    a : numpy.ndarray
+        The recursive filter coefficients.
+    nchn : int, optional
+        The number of input channels to be supported (default: 1).
     """
 
     def __init__(self, b, a, nchn=1):
         """Initialise an LTISys object.
 
-        Parameters
-        ----------
-        b : numpy.ndarray
-            The non-recursive filter coefficients.
-        a : numpy.ndarray
-            The recursive filter coefficients.
-        nchn : int, optional
-            The number of input channels to be supported (default: 1).
+        The parameters are documented in the class docstring.
         """
 
         a = a.flatten()
@@ -314,6 +316,32 @@ class RMFilterBank(object):
     This class provides two methods: `analyze()` implements the band splitting,
     and `synthesize()` its inverse.  This allows one to split a signal into N
     bands, process these bands separately, and then recombine them.
+
+    Parameters
+    ----------
+    fs : float, optional
+        The sampling rate in Hz (default: 1.0).
+    max_edge_freq : float, optional
+        The highest edge frequency of the filter bank (in Hz), that is, the
+        edge frequency of the final high-pass.  If None (the default), and
+        if `w_co` is None, then it is set to ``fs/2``.
+    numbands : int, optional
+        The number of frequency bands of the filter bank (default: 2).
+    w_co : list-like, optional
+        A list of edge frequencies (in Hz).  This overrides `numbands` if
+        given.
+    nchn : int, optional
+        The number of channels the filter bank should support.
+    lowpass_design_func : function, optional
+        A function that designs a low-pass filter.  It must implement the
+        following API::
+
+            b, a = lowpass_design_func(w_e)
+
+        Its sole argument is the edge frequency normalised to ``fs=2``, and
+        its return values are the b and a coefficients of the filter.  The
+        default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
+        and ``rs=50``.
     """
 
     def __init__(self,
@@ -325,31 +353,7 @@ class RMFilterBank(object):
                  lowpass_design_func=None):
         """Initialise an RMFilterBank object.
 
-        Parameters
-        ----------
-        fs : float, optional
-            The sampling rate in Hz (default: 1.0).
-        max_edge_freq : float, optional
-            The highest edge frequency of the filter bank (in Hz), that is, the
-            edge frequency of the final high-pass.  If None (the default), and
-            if `w_co` is None, then it is set to ``fs/2``.
-        numbands : int, optional
-            The number of frequency bands of the filter bank (default: 2).
-        w_co : list-like, optional
-            A list of edge frequencies (in Hz).  This overrides `numbands` if
-            given.
-        nchn : int, optional
-            The number of channels the filter bank should support.
-        lowpass_design_func : function, optional
-            A function that designs a low-pass filter.  It must implement the
-            following API::
-
-                b, a = lowpass_design_func(w_e)
-
-            Its sole argument is the edge frequency normalised to ``fs=2``, and
-            its return values are the b and a coefficients of the filter.  The
-            default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
-            and ``rs=50``.
+        The parameters are documented in the class docstring.
         """
 
         # override numbands if w_co is passed
