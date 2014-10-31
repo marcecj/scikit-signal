@@ -241,8 +241,7 @@ class LTISys(object):
         self.__states = np.zeros((self.__nchn, order))
 
     def filter(self, x, axis=-1):
-        """Filter an N-dimensional signal.  See `scipy.signal.lfilter` for more
-        details.
+        """Filter an N-dimensional signal.
 
         Parameters
         ----------
@@ -255,6 +254,11 @@ class LTISys(object):
         -------
         y : numpy.ndarray
             The filtered signal.
+
+        See Also
+        --------
+        scipy.signal.lfilter : Filter data along one-dimension with an IIR or
+                               FIR filter.
         """
 
         # Swap the axes here instead of passing the axis argument to
