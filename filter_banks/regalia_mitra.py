@@ -6,10 +6,9 @@ consist of all-pass filters.  These all-pass filters are derived from a set of
 low-pass filter designs which must fulfill certain properties [1]_.  They have
 the special property of being doubly-complementary, i.e., simultaneously
 all-pass- and power-complementary.  For an N-band filter bank, this means that
-the following two equations hold for its output filters:
+the following two equations hold for its output filters::
 
     |sum[k=0..N] H_k(z)|   =   1
-
     sum[k=0..N] |H_k(z)|^2 =   1.
 
 Regalia-Mitra filter banks consist of two stages: an analysis and a synthesis
@@ -26,13 +25,13 @@ References
 ----------
 
 .. [0] P. A. Regalia, P. P. Vaidyanathan, M. Renfors, Y. Neuvo, and S. K.
-Mitra, 'Tree-structured complementary filter banks using all-pass sections',
-IEEE Trans. Circuits and Systems, vol. 34, no. 12, pp. 1470-1484, December
-1987.  (downloadable at http://faculty.cua.edu/regalia/)
+   Mitra, 'Tree-structured complementary filter banks using all-pass sections',
+   IEEE Trans. Circuits and Systems, vol. 34, no. 12, pp. 1470-1484, December
+   1987.  (downloadable at http://faculty.cua.edu/regalia/)
 
 .. [1] Vaidyanathan, P.P.; Mitra, S.K.; Neuvo, Y., 'A new approach to the
-realization of low-sensitivity IIR digital filters', Acoustics, Speech and
-Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361, Apr 1986
+   realization of low-sensitivity IIR digital filters', Acoustics, Speech and
+   Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361, Apr 1986
 """
 
 from inspect import isfunction
@@ -46,23 +45,21 @@ def get_power_complementary_q(P, D):
     filter Q/D to a filter P/D, with P it's non-recursive coefficients and D
     it's recursive coefficients.  The term "doubly-complementary" means a group
     of filters that is simultaneously all-pass-complementary and
-    power-complementary, i.e.:
+    power-complementary, i.e.::
 
             |P(z)/D(z)      +   Q(z)/D(z)|      =   1
       and
             |P(z)/D(z)|^2   +   |Q(z)/D(z)|^2   =   1.
 
-    Parameters:
-    -----------
-
+    Parameters
+    ----------
     P : numpy.ndarray
         The non-recursive filter coefficients.
     D : numpy.ndarray
         The recursive filter coefficients.
 
-    Returns:
-    --------
-
+    Returns
+    -------
     Q : numpy.ndarray
         The non-recursive coefficients of the doubly-complementary filter.
     """
@@ -113,24 +110,21 @@ def get_power_complementary_filters(A1, A2):
     """Convert a pair of complementary all-pass filters to a
     doubly-complementary low-pass/high-pass pair.  The term
     "doubly-complementary" means a group of filters that is simultaneously
-    all-pass-complementary and power-complementary, i.e.:
+    all-pass-complementary and power-complementary, i.e.::
 
             |H1(z)      +   H2(z)|      =   1
-      and
             |H1(z)|^2   +   |H2(z)|^2   =   1,
 
-      where H1 is the original filter from which A1 and A2 were calculated.
+    where H1 is the original filter from which A1 and A2 were calculated.
 
-    Parameters:
-    -----------
-
+    Parameters
+    ----------
     A1, A2 : numpy.ndarray
         A pair of complementary all-pass filter coefficients (the b and a
         coefficients must be in the first and second column, respectively).
 
-    Returns:
-    --------
-
+    Returns
+    -------
     H1, H2 : numpy.ndarray
         Arrays containing the coefficients of doubly-complementary high-pass
         and low-pass filters.  The b and a coefficients are in the first and
@@ -170,17 +164,15 @@ def any_to_ap_pair(b, a):
     """Converts any filter that satisfies the constraints in [1]_ to a pair of
     doubly-complementary all-pass filters.
 
-    Parameters:
-    -----------
-
+    Parameters
+    ----------
     b : numpy.ndarray
         The non-recursive filter coefficients.
     a : numpy.ndarray
         The recursive filter coefficients.
 
-    Returns:
-    --------
-
+    Returns
+    -------
     A1, A2 : numpy.ndarray
         Arrays containing the coefficients of complementary all-pass filters
         whose sum yields a low-pass and whose difference yields the
@@ -221,21 +213,20 @@ class LTISys(object):
     """An LTI filter class.
 
     This is a simple class that implements an LTI system by wrapping
-    scipy.signal.lfilter.  Its primary purpose is to take care of the filter
+    `scipy.signal.lfilter`.  Its primary purpose is to take care of the filter
     state.
     """
 
     def __init__(self, b, a, nchn=1):
         """Initialise an LTISys object.
 
-        Parameters:
-        -----------
-
+        Parameters
+        ----------
         b : numpy.ndarray
             The non-recursive filter coefficients.
         a : numpy.ndarray
             The recursive filter coefficients.
-        nchn : int (optional)
+        nchn : int, optional
             The number of input channels to be supported (default: 1).
         """
 
@@ -251,15 +242,14 @@ class LTISys(object):
         self.__states = np.zeros((self.__nchn, order))
 
     def filter(self, x, axis=-1):
-        """Filter an N-dimensional signal.  See scipy.signal.lfilter for more
+        """Filter an N-dimensional signal.  See `scipy.signal.lfilter` for more
         details.
 
-        Parameters:
-        -----------
-
+        Parameters
+        ----------
         x : numpy.ndarray
-            The input signal; it must have self.nchn channels.
-        axis : int (optional)
+            The input signal; it must have `self.nchn` channels.
+        axis : int, optional
             The axis along which the filter operates (default: -1).
 
         """
@@ -303,8 +293,8 @@ class LTISys(object):
 class RMFilterBank(object):
     """A Class that implements a Regalia-Mitra filter bank.
 
-    This class provides two methods: analyze() implements the band splitting,
-    and synthesize() its inverse.  This allows one to split a signal into N
+    This class provides two methods: `analyze()` implements the band splitting,
+    and `synthesize()` its inverse.  This allows one to split a signal into N
     bands, process these bands separately, and then recombine them.
     """
 
@@ -317,25 +307,24 @@ class RMFilterBank(object):
                  lowpass_design_func=None):
         """Initialise an RMFilterBank object.
 
-        Inputs:
-        -------
-
+        Parameters
+        ----------
         fs : float, optional
             The sampling rate in Hz (default: 1.0).
         max_edge_freq : float, optional
             The highest edge frequency of the filter bank (in Hz), that is, the
             edge frequency of the final high-pass.  If None (the default), and
-            if w_co is None, then it is set to fs/2.
+            if `w_co` is None, then it is set to ``fs/2``.
         numbands : int, optional
             The number of frequency bands of the filter bank (default: 2).
         w_co : list-like, optional
             An optional list of edge frequencies (in Hz).  This overrides
-            numbands if given.
+            `numbands` if given.
         nchn : int, optional
             The number of channels the filter bank should support.
         lowpass_design_func : function, optional
             A function that designs a low-pass filter.  It must implement the
-            following API:
+            following API::
 
                 b, a = lowpass_design_func(w_e)
 
@@ -396,9 +385,8 @@ class RMFilterBank(object):
         operation are calculated.  Thirdly, the doubly-complementary high-pass
         filter is calculated.
 
-        Parameters:
-        -----------
-
+        Parameters
+        ----------
         fs : float
             The sampling frequency (in Hz).
         max_edge_freq : float
@@ -408,7 +396,7 @@ class RMFilterBank(object):
             The number of frequency bands of the filter bank.
         w_co : list-like
             An optional list of edge frequencies (in Hz).  This overrides
-            numbands if given.
+            `numbands` if given.
         lowpass_design_func : function, optional
             A function that designs a low-pass filter.  It must implement the
             following API:
@@ -420,17 +408,16 @@ class RMFilterBank(object):
             default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
             and ``rs=50``.
 
-        Returns:
-        --------
-
-          AP : numpy.ndarray
-              The coefficients of the complementary all-pass filters whose sum
-              yields a low-pass and whose difference yields the
-              doubly-complementary high-pass filter.  The b and a coefficients
-              are in the first and second column, respectively.
-          H : numpy.ndarray
-              The coefficients of the doubly complementary low-pass and
-              high-pass filters described above.
+        Returns
+        -------
+        AP : numpy.ndarray
+            The coefficients of the complementary all-pass filters whose sum
+            yields a low-pass and whose difference yields the
+            doubly-complementary high-pass filter.  The b and a coefficients
+            are in the first and second column, respectively.
+        H : numpy.ndarray
+            The coefficients of the doubly complementary low-pass and
+            high-pass filters described above.
         """
 
         if not w_co:
@@ -469,15 +456,13 @@ class RMFilterBank(object):
         """Split an input signal into multiple frequency bands using an
         analysis filter bank.
 
-        Inputs:
-        -------
-
+        Parameters
+        ----------
         x : numpy.ndarray
             The input signal.
 
-        Returns:
-        --------
-
+        Returns
+        -------
         x_bs : numpy.ndarray
             The band-split signal.
         """
@@ -508,15 +493,13 @@ class RMFilterBank(object):
         Note that due to the all-pass complementary property of the filter
         bank, it is possible to simply sum up the bands.
 
-        Inputs:
-        -------
-
+        Parameters
+        ----------
         x_bs : numpy.ndarray
             A band-split signal (filtered output of .analyse()).
 
-        Returns:
-        --------
-
+        Returns
+        -------
         y : numpy.ndarray
             The synthesised output signal.
         """
