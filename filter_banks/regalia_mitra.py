@@ -328,7 +328,7 @@ class RMFilterBank(object):
 
                 b, a = lowpass_design_func(w_e)
 
-            Its sole argument is the edge frequency normalised to ``fs=1``, and
+            Its sole argument is the edge frequency normalised to ``fs=2``, and
             its return values are the b and a coefficients of the filter.  The
             default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
             and ``rs=50``.
