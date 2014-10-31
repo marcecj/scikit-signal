@@ -1,5 +1,4 @@
-"""This module implements a set of functions and a class for generating
-Regalia-Mitra filter banks.
+"""Functions and a class for generating Regalia-Mitra filter banks.
 
 Regalia-Mitra filter banks are a form of tree-structured filter bank that
 consist of all-pass filters.  These all-pass filters are derived from a set of
