@@ -89,10 +89,10 @@ def get_power_complementary_q(P, D):
     N = D.size
     P_sq_sort = np.zeros((N*2-1,))
     D_sq_sort = np.zeros((N*2-1,))
-    for mm in range(N):
-        for nn in range(N):
-            P_sq_sort[mm+nn] += P_sq[mm, nn]
-            D_sq_sort[mm+nn] += D_sq[mm, nn]
+    for m in range(N):
+        for n in range(N):
+            P_sq_sort[m+n] += P_sq[m, n]
+            D_sq_sort[m+n] += D_sq[m, n]
 
     Q = np.zeros((P.size,))
 
@@ -101,8 +101,8 @@ def get_power_complementary_q(P, D):
     Q[0] = np.sqrt(R[0])
     Q[1] = R[1]/(2*Q[0])
     # Q is antisymmetric, so calculate N/2 and generate the rest from that
-    for kk in range(2, N//2):
-        Q[kk] = (R[kk] - (Q[1:kk].T.dot(Q[kk-1:0:-1])))/(2*Q[0])
+    for k in range(2, N//2):
+        Q[k] = (R[k] - (Q[1:k].T.dot(Q[k-1:0:-1])))/(2*Q[0])
 
     Q[N/2:] = -Q[N/2-1::-1]
 
@@ -153,12 +153,12 @@ def get_power_complementary_filters(A1, A2):
     H1a_sort = np.zeros((M+N, 1))
     H2a_sort = np.zeros((M+N, 1))
 
-    for mm in range(M):
-        for nn in range(N):
-            H1b_sort[mm+nn] += H1b[mm, nn]
-            H2b_sort[mm+nn] += H2b[mm, nn]
-            H1a_sort[mm+nn] += H1a[mm, nn]
-            H2a_sort[mm+nn] += H1a[mm, nn]
+    for m in range(M):
+        for n in range(N):
+            H1b_sort[m+n] += H1b[m, n]
+            H2b_sort[m+n] += H2b[m, n]
+            H1a_sort[m+n] += H1a[m, n]
+            H2a_sort[m+n] += H1a[m, n]
 
     H1 = np.hstack((H1b_sort, H1a_sort))
     H2 = np.hstack((H2b_sort, H2a_sort))
