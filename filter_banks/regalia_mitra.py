@@ -159,8 +159,7 @@ def get_power_complementary_filters(A1, A2):
 
 
 def any_to_ap_pair(b, a):
-    """Converts any filter that satisfies the constraints in [1]_ to a pair of
-    doubly-complementary all-pass filters.
+    """Convert a filter to a pair of doubly-complementary all-pass filters.
 
     Parameters
     ----------
@@ -176,6 +175,19 @@ def any_to_ap_pair(b, a):
         whose sum yields a low-pass and whose difference yields the
         doubly-complementary high-pass filter.  The b and a coefficients are in
         the first and second column, respectively.
+
+    Notes
+    -----
+    The filter must satisfy the constraints described in Lemma 3.1 in [0]_.
+    All that will be repeated here is that they are fulfilled by classic
+    Butterworth, Chebyshev, and elliptic low-pass filter designs.
+
+    References
+    ----------
+    .. [0] Vaidyanathan, P.P.; Mitra, S.K.; Neuvo, Y., 'A new approach to the
+       realization of low-sensitivity IIR digital filters', Acoustics, Speech
+       and Signal Processing, IEEE Transactions on , vol.34, no.2, pp.350,361,
+       Apr 1986
     """
 
     # make sure we get 1d vectors
