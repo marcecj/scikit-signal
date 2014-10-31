@@ -291,7 +291,7 @@ class LTISys(object):
 
 
 class RMFilterBank(object):
-    """A Class that implements a Regalia-Mitra filter bank.
+    """A class that implements a Regalia-Mitra filter bank.
 
     This class provides two methods: `analyze()` implements the band splitting,
     and `synthesize()` its inverse.  This allows one to split a signal into N
