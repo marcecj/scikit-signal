@@ -341,7 +341,7 @@ class RMFilterBank(object):
 
             Its sole argument is the edge frequency normalised to ``fs=1``, and
             its return values are the b and a coefficients of the filter.  The
-            default is to design an elliptic filter with ``N=7``, ``rp=1e-4``
+            default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
             and ``rs=50``.
         """
 
@@ -416,7 +416,7 @@ class RMFilterBank(object):
 
             Its sole argument is the edge frequency normalised to ``fs=1``, and
             its return values are the b and a coefficients of the filter.  The
-            default is to design an elliptic filter with ``N=7``, ``rp=1e-4``
+            default is to design an elliptic filter with ``N=7``, ``rp=1e-5``
             and ``rs=50``.
 
         Returns:
