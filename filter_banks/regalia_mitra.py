@@ -311,7 +311,7 @@ class RMFilterBank(object):
     def __init__(self,
                  fs=1.0,
                  max_edge_freq=None,
-                 nbands=2,
+                 numbands=2,
                  w_co=None,
                  nchn=1,
                  lowpass_design_func=None):
@@ -326,11 +326,11 @@ class RMFilterBank(object):
             The highest edge frequency of the filter bank (in Hz), that is, the
             edge frequency of the final high-pass.  If None (the default), and
             if w_co is None, then it is set to fs/2.
-        nbands : int, optional
+        numbands : int, optional
             The number of frequency bands of the filter bank (default: 2).
         w_co : list-like, optional
             An optional list of edge frequencies (in Hz).  This overrides
-            nbands if given.
+            numbands if given.
         nchn : int, optional
             The number of channels the filter bank should support.
         lowpass_design_func : function, optional
@@ -345,24 +345,24 @@ class RMFilterBank(object):
             and ``rs=50``.
         """
 
-        # override nbands if w_co is passed
+        # override numbands if w_co is passed
         if w_co:
-            nbands = len(w_co)+1
+            numbands = len(w_co)+1
 
         if not max_edge_freq:
             max_edge_freq = fs/2
 
-        self.__nbands = nbands
+        self.__numbands = numbands
 
         self.__AP = []
         self.__H = []
         self.__edge_freqs = None
-        self.__gen_filter_bank(fs, max_edge_freq, w_co, nbands,
+        self.__gen_filter_bank(fs, max_edge_freq, w_co, numbands,
                                lowpass_design_func)
 
         # construct the analysis filter tree
         self.__ana_filters = []
-        for i in range(nbands-1):
+        for i in range(numbands-1):
             self.__ana_filters.append([])
             for j in range(i):
                 self.__ana_filters[i].append(
@@ -375,18 +375,19 @@ class RMFilterBank(object):
 
         # construct the synthesis filter tree
         self.__syn_filters = []
-        for i in range(nbands-1):
+        for i in range(numbands-1):
             self.__syn_filters.append([])
-            for j in range(nbands-2-i):
+            for j in range(numbands-2-i):
                 self.__syn_filters[i].append(
-                    LTISys(*np.hsplit(self.__AP[nbands-2-i][1], 2), nchn=nchn)
+                    LTISys(*np.hsplit(self.__AP[numbands-2-i][1], 2),
+                           nchn=nchn)
                 )
-            for h in self.__AP[nbands-2-i]:
+            for h in self.__AP[numbands-2-i]:
                 self.__syn_filters[i].append(
                     LTISys(*np.hsplit(h, 2), nchn=nchn)
                 )
 
-    def __gen_filter_bank(self, fs, max_edge_freq, w_co, nbands,
+    def __gen_filter_bank(self, fs, max_edge_freq, w_co, numbands,
                           lowpass_design_func):
         """Function to generate AP filters for constructing a Regalia-Mitra
         filter bank with equidistant edge frequencies.  First, low-pass
@@ -403,11 +404,11 @@ class RMFilterBank(object):
         max_edge_freq : float
             The highest edge frequency of the filter bank (in Hz), that is, the
             edge frequency of the final high-pass.
-        nbands : int
+        numbands : int
             The number of frequency bands of the filter bank.
         w_co : list-like
             An optional list of edge frequencies (in Hz).  This overrides
-            nbands if given.
+            numbands if given.
         lowpass_design_func : function, optional
             A function that designs a low-pass filter.  It must implement the
             following API:
@@ -435,8 +436,8 @@ class RMFilterBank(object):
         if not w_co:
             # split edge frequencies evenly (though arbitrarily limit edge
             # frequencies to user configurable value)
-            w_co = np.linspace(max_edge_freq/nbands, max_edge_freq,
-                               nbands)[:-1]/(fs/2.)
+            w_co = np.linspace(max_edge_freq/numbands, max_edge_freq,
+                               numbands)[:-1]/(fs/2.)
         else:
             w_co = np.array(w_co)
             w_co = w_co/(fs/2.)
@@ -448,7 +449,7 @@ class RMFilterBank(object):
 
         self.__edge_freqs = w_co[::-1]*fs/2
 
-        for i in range(nbands-1):
+        for i in range(numbands-1):
             # original filter
             #
             # If the pass-band is maximally flat, one could perhaps optimise
@@ -485,7 +486,7 @@ class RMFilterBank(object):
 
         nchn, nsmp = in_sig.shape
 
-        out_sig = np.zeros((self.__nbands, nchn, nsmp))
+        out_sig = np.zeros((self.__numbands, nchn, nsmp))
         out_sig[0] = in_sig.copy()
 
         for i, s in enumerate(self.__ana_filters):
