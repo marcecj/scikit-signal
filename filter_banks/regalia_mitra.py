@@ -250,14 +250,14 @@ class LTISys(object):
         order = max(a.size, b.size)-1
         self.__states = np.zeros((self.__nchn, order))
 
-    def filter(self, in_sig, axis=-1):
+    def filter(self, x, axis=-1):
         """Filter an N-dimensional signal.  See scipy.signal.lfilter for more
         details.
 
         Parameters:
         -----------
 
-        in_sig : numpy.ndarray
+        x : numpy.ndarray
             The input signal; it must have self.nchn channels.
         axis : int (optional)
             The axis along which the filter operates (default: -1).
@@ -268,21 +268,21 @@ class LTISys(object):
         # scipy.signal.lfilter because in the latter case the shape of the
         # states would not match the shape of the input signal, leading to an
         # error in lfilter.
-        in_sig = np.atleast_2d(in_sig).swapaxes(axis, -1)
+        x = np.atleast_2d(x).swapaxes(axis, -1)
 
-        if in_sig.shape[0] != self.__nchn:
-            raise ValueError('in_sig has the wrong number of channels.')
+        if x.shape[0] != self.__nchn:
+            raise ValueError('x has the wrong number of channels.')
 
         # TODO: file a bug report: when zi has the wrong dimensionality,
         # lfilter causes SIGSEG's, SIGABRT's, etc.
-        out_sig, self.__states = sig.lfilter(
+        y, self.__states = sig.lfilter(
             b=self.__b,
             a=self.__a,
-            x=in_sig,
+            x=x,
             zi=self.__states
         )
 
-        return out_sig.swapaxes(axis, -1)
+        return y.swapaxes(axis, -1)
 
     @property
     def b(self):
@@ -465,43 +465,43 @@ class RMFilterBank(object):
             self.__AP.append((A1, A2))
             self.__H.append((H1, H2))
 
-    def analyze(self, in_sig):
+    def analyze(self, x):
         """Split an input signal into multiple frequency bands using an
         analysis filter bank.
 
         Inputs:
         -------
 
-        in_sig : numpy.ndarray
+        x : numpy.ndarray
             The input signal.
 
         Returns:
         --------
 
-        bs_sig : numpy.ndarray
+        x_bs : numpy.ndarray
             The band-split signal.
         """
 
-        in_sig = np.atleast_2d(in_sig)
+        x = np.atleast_2d(x)
 
-        nchn, nsmp = in_sig.shape
+        nchn, nsmp = x.shape
 
-        out_sig = np.zeros((self.__numbands, nchn, nsmp))
-        out_sig[0] = in_sig.copy()
+        x_bs = np.zeros((self.__numbands, nchn, nsmp))
+        x_bs[0] = x.copy()
 
         for i, s in enumerate(self.__ana_filters):
 
-            out_sig[i+1] = s[-1].filter(out_sig[i])
+            x_bs[i+1] = s[-1].filter(x_bs[i])
             for j, h in enumerate(s[:-1]):
-                out_sig[j] = h.filter(out_sig[j])
+                x_bs[j] = h.filter(x_bs[j])
 
             # butterfly operation
-            out_sig[i:i+2] = np.array((0.5*(out_sig[i+1] - out_sig[i]),
-                                       0.5*(out_sig[i+1] + out_sig[i])))
+            x_bs[i:i+2] = np.array((0.5*(x_bs[i+1] - x_bs[i]),
+                                    0.5*(x_bs[i+1] + x_bs[i])))
 
-        return out_sig
+        return x_bs
 
-    def synthesize(self, bs_sig):
+    def synthesize(self, x_bs):
         """Reconstruct a signal from it's band-split representation using a
         synthesis filter bank.
 
@@ -511,28 +511,28 @@ class RMFilterBank(object):
         Inputs:
         -------
 
-        bs_sig : numpy.ndarray
+        x_bs : numpy.ndarray
             A band-split signal (filtered output of .analyse()).
 
         Returns:
         --------
 
-        out_sig : numpy.ndarray
+        y : numpy.ndarray
             The synthesised output signal.
         """
 
-        out_sig = bs_sig.copy()
+        y = x_bs.copy()
 
         for s in self.__syn_filters:
-            out_sig[-2:] = np.array((0.5*(out_sig[-1] - out_sig[-2]),
-                                     0.5*(out_sig[-1] + out_sig[-2])))
+            y[-2:] = np.array((0.5*(y[-1] - y[-2]),
+                               0.5*(y[-1] + y[-2])))
             for j, h in enumerate(s):
-                out_sig[j] = h.filter(out_sig[j])
+                y[j] = h.filter(y[j])
 
-            out_sig[-2] = out_sig[-2:].sum(axis=0)
-            out_sig = out_sig[:-1]
+            y[-2] = y[-2:].sum(axis=0)
+            y = y[:-1]
 
-        return out_sig[0]
+        return y[0]
 
     @property
     def AP(self):
