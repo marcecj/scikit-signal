@@ -455,9 +455,6 @@ class RMFilterBank(object):
 
         self.__edge_freqs = w_co[::-1]*fs/2
 
-        b = np.zeros((nbands, order+1))
-        a = np.zeros((nbands, order+1))
-
         for i in range(nbands-1):
             # original filter
             #
@@ -468,10 +465,10 @@ class RMFilterBank(object):
 
             b_d, a_d = design_func(order, w_co[-1-i])
 
-            b[i] = b_d/a_d[0]
-            a[i] = a_d/a_d[0]
+            b = b_d/a_d[0]
+            a = a_d/a_d[0]
 
-            A1, A2 = any_to_ap_pair(b[i], a[i])
+            A1, A2 = any_to_ap_pair(b, a)
             H1, H2 = get_power_complementary_filters(A1, A2)
 
             self.__AP.append((A1, A2))
