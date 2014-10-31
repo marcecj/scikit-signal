@@ -5,3 +5,6 @@
 
 # backup files
 *~
+
+# compiled documentation
+docs/_build/
