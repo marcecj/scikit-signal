@@ -251,6 +251,10 @@ class LTISys(object):
         axis : int, optional
             The axis along which the filter operates (default: -1).
 
+        Returns
+        -------
+        y : numpy.ndarray
+            The filtered signal.
         """
 
         # Swap the axes here instead of passing the axis argument to
