@@ -1,4 +1,4 @@
-Welcome to modulation_filtering's documentation!
+Welcome to scikit-signal's documentation!
 ================================================
 
 Contents:
